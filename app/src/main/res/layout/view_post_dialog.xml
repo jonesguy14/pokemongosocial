@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/relativeLayoutUserPost">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:id="@+id/textViewUsername"
+                    android:textColor="#000"
+                    android:text="username"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/textViewUsername"
+                    android:id="@+id/textViewTeam"
+                    android:text="X Team"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:id="@+id/textViewPostTime"
+                    android:text="Posted 12/31/2016"
+                    />
+
+            </RelativeLayout>
+
+            <com.android.volley.toolbox.NetworkImageView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageViewPost"
+                android:layout_below="@+id/relativeLayoutUserPost"
+                android:paddingBottom="5dp"
+                android:paddingTop="5dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/imageViewPost"
+                android:id="@+id/textViewPostPlace"
+                android:textColor="#000"
+                android:text="Post title"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textViewPostPlace"
+                android:id="@+id/linearLayoutCaptionButton">
+
+                <TextView
+                    android:layout_width="0dip"
+                    android:layout_weight="4"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:id="@+id/textViewPostCaption"
+                    android:text="post caption goes here lol yea this is working great it doesn't intersect with the right side"
+                    />
+
+                <Button
+                    android:layout_width="0dip"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/buttonNumLikes"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="0 likes"
+                    android:textColor="#000"
+                    style="?android:attr/borderlessButtonStyle"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayoutButtons"
+                android:layout_below="@+id/linearLayoutCaptionButton">
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Comment"
+                    android:id="@+id/buttonComment" />
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Down"
+                    android:id="@+id/buttonThumbDown" />
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="Up"
+                    android:id="@+id/buttonThumbUp" />
+
+            </LinearLayout>
+
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="5dp"
+                android:layout_below="@+id/linearLayoutButtons"
+                android:id="@+id/listViewComments"
+                android:scrollbars="none">
+            </ListView>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

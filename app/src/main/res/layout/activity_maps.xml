@@ -1,0 +1,86 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0dip"
+            android:layout_weight="1"
+            android:layout_margin="5dp">
+
+            <com.android.volley.toolbox.NetworkImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:id="@+id/imageViewProfilePic" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/imageViewProfilePic"
+                android:layout_alignParentTop="true"
+                android:id="@+id/textViewUsername"
+                android:textColor="#000"
+                android:text="userame"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/imageViewProfilePic"
+                android:layout_below="@+id/textViewUsername"
+                android:id="@+id/textViewTeam"
+                android:text="Team X"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:id="@+id/textViewTimeJoined"
+                android:text="Joined 12/31/2016"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:id="@+id/textViewReputation"
+                android:textColor="#000"
+                android:text="Reputation: 0"
+                />
+
+        </RelativeLayout>
+
+        <fragment
+            xmlns:map="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_weight="9"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            tools:context="io.wandr_app.wandr.MapsActivity" />
+
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabMaps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@android:drawable/ic_dialog_dialer" />
+
+</RelativeLayout>
+

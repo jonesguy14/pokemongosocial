@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="5dp">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Display Name"
+        android:textColor="#000"
+        android:id="@+id/textViewUsername"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="username"
+        android:layout_marginStart="5dp"
+        android:id="@+id/textViewTeam"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/textViewUsername" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="2016-7-2 4:20"
+        android:id="@+id/textViewTime"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Here is the comment's content, it goes here hasd ioeadsf lkaseli ajsdlk ajsleij alsdkfja lseijf"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:id="@+id/textViewContent"
+        android:layout_below="@+id/textViewUsername"
+        android:layout_alignParentStart="true" />
+
+</RelativeLayout>
