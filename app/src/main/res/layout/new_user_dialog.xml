@@ -74,12 +74,14 @@
 
     <Button
         android:layout_width="200dp"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:text="Done"
         android:id="@+id/buttonDone"
         android:layout_below="@+id/linearLayoutTeam"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp" />
+        android:layout_marginTop="30dp"
+        android:background="@drawable/button_shape_fc"
+        android:textColor="#FFF"/>
 
 
 

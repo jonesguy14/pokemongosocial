@@ -25,6 +25,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -411,8 +412,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         final TextView postCaptionTextView = (TextView) dialog.findViewById(R.id.textViewPostCaption);
 
         final Button numLikesButton = (Button) dialog.findViewById(R.id.buttonNumLikes);
-        final Button thumbUpButton = (Button) dialog.findViewById(R.id.buttonThumbUp);
-        final Button thumbDownButton = (Button) dialog.findViewById(R.id.buttonThumbDown);
+        final ImageButton thumbUpButton = (ImageButton) dialog.findViewById(R.id.buttonThumbUp);
+        final ImageButton thumbDownButton = (ImageButton) dialog.findViewById(R.id.buttonThumbDown);
         final Button commentButton = (Button) dialog.findViewById(R.id.buttonComment);
 
         usernameTextView.setText(username);
@@ -456,7 +457,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         thumbUpButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
-                makeRequestLikePost(post.post_id, "UP");
+                makeRequestLikePost(post.post_id, post.user_id, "UP");
                 post.likes++;
                 post.hasLiked = true;
                 thumbUpButton.setEnabled(false);
@@ -468,7 +469,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         thumbDownButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
-                makeRequestLikePost(post.post_id, "DOWN");
+                makeRequestLikePost(post.post_id, post.user_id, "DOWN");
                 post.likes--;
                 post.hasLiked = true;
                 thumbUpButton.setEnabled(false);
@@ -682,7 +683,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         requestQueue.add(request);
     }
 
-    private void makeRequestLikePost(final int post_id, final String isUpDown) {
+    private void makeRequestLikePost(final int post_id, final String post_user_id, final String isUpDown) {
         RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
         StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/like_post.php",
                 new Response.Listener<String>() {
@@ -713,6 +714,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             protected Map<String, String> getParams() throws AuthFailureError {
                 HashMap<String,String> map = new HashMap<>();
                 map.put("post_id", "" + post_id);
+                map.put("post_user_id", post_user_id);
                 map.put("username", username);
                 map.put("password", password);
                 map.put("isUpDown", isUpDown);

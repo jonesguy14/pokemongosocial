@@ -102,24 +102,41 @@
 
                 <Button
                     android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_height="wrap_content"
+                    android:layout_weight="4"
+                    android:layout_height="50dp"
                     android:text="Comment"
-                    android:id="@+id/buttonComment" />
+                    android:id="@+id/buttonComment"
+                    android:background="@drawable/button_shape_fc"
+                    android:textColor="#FFF"
+                    android:layout_margin="5dp"/>
 
-                <Button
+                <ImageButton
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Down"
-                    android:id="@+id/buttonThumbDown" />
+                    android:layout_height="50dp"
+                    android:src="@drawable/thumbsdown"
+                    android:background="@drawable/button_shape_fc_accent"
+                    android:id="@+id/buttonThumbDown"
+                    android:adjustViewBounds="true"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
+                    android:scaleType="fitCenter"
+                    android:layout_margin="5dp"
+                    android:layout_gravity="center_vertical"/>
 
-                <Button
+                <ImageButton
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Up"
-                    android:id="@+id/buttonThumbUp" />
+                    android:layout_height="50dp"
+                    android:src="@drawable/thumbsup"
+                    android:background="@drawable/button_shape_fc_accent"
+                    android:id="@+id/buttonThumbUp"
+                    android:adjustViewBounds="true"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="5dp"
+                    android:scaleType="fitCenter"
+                    android:layout_margin="5dp"
+                    android:layout_gravity="center_vertical"/>
 
             </LinearLayout>
 
