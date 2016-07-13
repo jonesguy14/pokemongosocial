@@ -191,6 +191,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         // Get the JSON Response
+                        System.out.println("New user response: " + response);
                         try {
                             JSONObject responseJSON = new JSONObject(response);
                             Toast.makeText(LoginActivity.this, responseJSON.getString("message"),

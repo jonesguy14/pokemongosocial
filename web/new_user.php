@@ -11,8 +11,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 function newUser() {
     global $connect;
 
-    $response["input"] = file_get_contents('php://input');
-
     if(isset($_POST["username"])){
 
         $username = $_POST["username"];
@@ -22,7 +20,7 @@ function newUser() {
 
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
         
-        $query = "INSERT INTO users values ('$username', '$passwordHash', '$profile_image_path', '$team', CURRENT_TIMESTAMP);";
+        $query = "INSERT INTO users values ('$username', '$passwordHash', '$profile_image_path', '$team', CURRENT_TIMESTAMP, 0);";
         
         $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
         

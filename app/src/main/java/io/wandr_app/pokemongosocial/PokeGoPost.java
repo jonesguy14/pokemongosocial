@@ -34,7 +34,7 @@ public class PokeGoPost {
         this.user_team = user_team;
         this.title = title;
         this.caption = caption;
-        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss.SSS");
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
         this.time = formatter.format(new Date(timemsec));
         this.latitude = latitude;
         this.longitude = longitude;
