@@ -23,7 +23,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -36,6 +38,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -43,6 +46,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -76,10 +80,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private String team;
     private String profileImagePath;
 
+    private double currRange = 1;
+
     private String newPostCaption;
     private String newPostTitle;
     private double newPostLatitude;
     private double newPostLongitude;
+    private boolean newPostOnlyVisibleTeam;
 
     public static final String IMAGE_URL_BASE = "http://wandr-app.io/pokemon/images/";
 
@@ -178,7 +185,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             System.out.println(responseJSON.toString());
                             usernameTextView.setText(responseJSON.getString("username"));
                             teamTextView.setText(responseJSON.getString("team") + " Team");
-                            timeJoinedTextView.setText(responseJSON.getString("time_joined"));
+                            timeJoinedTextView.setText("Joined " + responseJSON.getString("time_joined").split(" ")[0]);
                             reputationTextView.setText("Reputation: " + responseJSON.getString("reputation"));
 
                             username = responseJSON.getString("username");
@@ -231,8 +238,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker m) {
-                selectedMarker = m;
-                showViewPostDialog(postHashMap.get(selectedMarker));
+                if (!m.getTitle().equals("You Are Here")) {
+                    selectedMarker = m;
+                    showViewPostDialog(postHashMap.get(selectedMarker));
+                }
                 return false; //false so that default behavior is done too
             }
         });
@@ -241,10 +250,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void addPostMarkers() {
         if (mMap != null) {
             for (PokeGoPost p : loadedPosts) {
-                LatLng postCoord = new LatLng(p.latitude, p.longitude);
-                Marker marker = mMap.addMarker(new MarkerOptions().position(postCoord).title(p.title));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(postCoord, 15));
-                postHashMap.put(marker, p);
+
+                boolean shouldAdd = true;
+                for (PokeGoPost existingPost : postHashMap.values()) {
+                    if (existingPost.post_id == p.post_id) {
+                        // Already exists, don't add again
+                        shouldAdd = false;
+                        break;
+                    }
+                }
+
+                if (shouldAdd) {
+                    LatLng postCoord = new LatLng(p.latitude, p.longitude);
+                    final Marker marker = mMap.addMarker(new MarkerOptions().position(postCoord).title(p.title));
+
+                    // Get the right image for the marker
+                    ImageRequest request = new ImageRequest(IMAGE_URL_BASE + p.getImageURL(),
+                            new Response.Listener<Bitmap>() {
+                                @Override
+                                public void onResponse(Bitmap bitmap) {
+                                    Bitmap resized = PokeGoPost.getResizedBitmap(bitmap, bitmap.getWidth() * 2, bitmap.getHeight() * 2);
+                                    marker.setIcon(BitmapDescriptorFactory.fromBitmap(resized));
+                                    marker.setAnchor(0.5f, 0.5f);
+                                }
+                            }, 0, 0, null,
+                            new Response.ErrorListener() {
+                                public void onErrorResponse(VolleyError error) {
+                                    // Do nothing, default marker
+                                }
+                            });
+                    RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
+                    requestQueue.add(request);
+
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(postCoord, 15));
+                    postHashMap.put(marker, p);
+                }
             }
             loadedPosts.clear();
         }
@@ -332,10 +372,139 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 HashMap<String,String> map = new HashMap<>();
                 map.put("latitude", "" + locationListener.getCurrLocation().getLatitude());
                 map.put("longitude", "" + locationListener.getCurrLocation().getLongitude());
+                map.put("range", "" + currRange);
+                map.put("team", team);
                 return map;
             }
         };
         requestQueue.add(request);
+
+        // Add marker for current location
+        LatLng postCoord = new LatLng(locationListener.getCurrLocation().getLatitude(),
+                locationListener.getCurrLocation().getLongitude());
+        final Marker marker = mMap.addMarker(
+                new MarkerOptions()
+                    .position(postCoord)
+                    .title("You Are Here")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(postCoord, 15));
+    }
+
+    public void showViewPostDialog(final PokeGoPost post) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(getLayoutInflater().inflate(R.layout.view_post_dialog, null))
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        final TextView usernameTextView = (TextView) dialog.findViewById(R.id.textViewUsername);
+        final TextView teamTextView = (TextView) dialog.findViewById(R.id.textViewTeam);
+        final TextView postTimeTextView = (TextView) dialog.findViewById(R.id.textViewPostTime);
+
+        final ImageView postImageView = (ImageView) dialog.findViewById(R.id.imageViewPost);
+
+        final TextView postPlaceTextView = (TextView) dialog.findViewById(R.id.textViewPostPlace);
+        final TextView postCaptionTextView = (TextView) dialog.findViewById(R.id.textViewPostCaption);
+
+        final Button numLikesButton = (Button) dialog.findViewById(R.id.buttonNumLikes);
+        final Button thumbUpButton = (Button) dialog.findViewById(R.id.buttonThumbUp);
+        final Button thumbDownButton = (Button) dialog.findViewById(R.id.buttonThumbDown);
+        final Button commentButton = (Button) dialog.findViewById(R.id.buttonComment);
+
+        usernameTextView.setText(username);
+        teamTextView.setText(post.user_team);
+        postTimeTextView.setText(post.time);
+
+        //postImageView.setImageUrl(IMAGE_URL_BASE + post.getImageURL(), mImageLoader);
+        // Get the right image for the post
+        ImageRequest request = new ImageRequest(IMAGE_URL_BASE + post.getImageURL(),
+                new Response.Listener<Bitmap>() {
+                    @Override
+                    public void onResponse(Bitmap bitmap) {
+                        Bitmap resized = PokeGoPost.getResizedBitmap(bitmap, bitmap.getWidth() * 5, bitmap.getHeight() * 5);
+                        postImageView.setImageBitmap(resized);
+                    }
+                }, 0, 0, null,
+                new Response.ErrorListener() {
+                    public void onErrorResponse(VolleyError error) {
+                        // Do nothing, default marker
+                        //postImageView.setImageUrl(IMAGE_URL_BASE + post.user_team + "_pic.jpg" , mImageLoader);
+                    }
+                });
+        RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
+        requestQueue.add(request);
+
+        postPlaceTextView.setText(post.title);
+        postCaptionTextView.setText(post.caption);
+
+        numLikesButton.setText(post.likes + " likes");
+
+        final ListView commentsListView = (ListView) dialog.findViewById(R.id.listViewComments);
+        PokeGoComment[] comments = new PokeGoComment[1];
+        comments[0] = new PokeGoComment();
+        commentsListView.setAdapter(new CommentsListArrayAdapter(this, commentsListView, comments, post.post_id, true));
+
+        if (post.hasLiked) {
+            thumbUpButton.setEnabled(false);
+            thumbDownButton.setEnabled(false);
+        }
+
+        thumbUpButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Perform action on click
+                makeRequestLikePost(post.post_id, "UP");
+                post.likes++;
+                post.hasLiked = true;
+                thumbUpButton.setEnabled(false);
+                thumbDownButton.setEnabled(false);
+                numLikesButton.setText(post.likes + " likes");
+            }
+        });
+
+        thumbDownButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Perform action on click
+                makeRequestLikePost(post.post_id, "DOWN");
+                post.likes--;
+                post.hasLiked = true;
+                thumbUpButton.setEnabled(false);
+                thumbDownButton.setEnabled(false);
+                numLikesButton.setText(post.likes + " likes");
+            }
+        });
+
+        commentButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Perform action on click
+                AlertDialog.Builder alert = new AlertDialog.Builder(MapsActivity.this);
+                final EditText edittext = new EditText(MapsActivity.this);
+                alert.setTitle("Comment on post");
+                alert.setView(edittext);
+
+                alert.setPositiveButton("Post", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        String content = edittext.getText().toString();
+                        makeRequestActionPost(post.post_id, content, commentsListView);
+                    }
+                });
+
+                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        // what ever you want to do with No option.
+                    }
+                });
+
+                alert.show();
+            }
+        });
+
+        // Make sure it shows the correct number of likes in case that changed since log in
+        makeRequestNumLikes(post.post_id, numLikesButton);
+
     }
 
     public void showNewPostDialog() {
@@ -353,7 +522,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         pokemonSpinner.setAdapter(adapter);
 
-        Button postButton = (Button) dialog.findViewById(R.id.buttonPost);
+        final Button postButton = (Button) dialog.findViewById(R.id.buttonPost);
+
+        final CheckBox onlyVisibleTeamCheckBox = (CheckBox) dialog.findViewById(R.id.checkBoxOnlyVisibleTeam);
+        onlyVisibleTeamCheckBox.setText("Only visible to " + team + " team");
 
         postButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -363,6 +535,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 newPostCaption = captionEditText.getText().toString();
                 newPostLatitude = locationListener.getCurrLocation().getLatitude();//51.6 - Math.random()*0.2;
                 newPostLongitude = locationListener.getCurrLocation().getLongitude();//0.15 - Math.random()*0.1;
+                newPostOnlyVisibleTeam = onlyVisibleTeamCheckBox.isChecked();
                 makeRequestNewPost();
                 dialog.dismiss();
             }
@@ -384,7 +557,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                             // Create a PokeGoPost object and add it to the map
                             PokeGoPost newPost = new PokeGoPost(responseJSON.getInt("post_id"), username, team, newPostTitle, newPostCaption,
-                                    System.currentTimeMillis() + "", newPostLatitude, newPostLongitude, 0);
+                                    System.currentTimeMillis(), newPostLatitude, newPostLongitude, newPostOnlyVisibleTeam);
+                            newPost.hasLiked = true;
                             loadedPosts.add(newPost);
                             addPostMarkers();
                         } catch (Exception e) {
@@ -411,168 +585,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 map.put("caption", newPostCaption);
                 map.put("latitude", "" + newPostLatitude);
                 map.put("longitude", "" + newPostLongitude);
+                map.put("only_visible_team", "" + (newPostOnlyVisibleTeam ? 1 : 0));
                 return map;
             }
         };
         requestQueue.add(request);
     }
 
-    public void showViewPostDialog(final PokeGoPost post) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(getLayoutInflater().inflate(R.layout.view_post_dialog, null))
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                });
-        final AlertDialog dialog = builder.create();
-        dialog.show();
-
-        final TextView usernameTextView = (TextView) dialog.findViewById(R.id.textViewUsername);
-        final TextView teamTextView = (TextView) dialog.findViewById(R.id.textViewTeam);
-        final TextView postTimeTextView = (TextView) dialog.findViewById(R.id.textViewPostTime);
-
-        final NetworkImageView postImageView = (NetworkImageView) dialog.findViewById(R.id.imageViewPost);
-
-        final TextView postPlaceTextView = (TextView) dialog.findViewById(R.id.textViewPostPlace);
-        final TextView postCaptionTextView = (TextView) dialog.findViewById(R.id.textViewPostCaption);
-
-        final Button numLikesButton = (Button) dialog.findViewById(R.id.buttonNumLikes);
-        final Button thumbUpButton = (Button) dialog.findViewById(R.id.buttonThumbUp);
-        final Button thumbDownButton = (Button) dialog.findViewById(R.id.buttonThumbDown);
-        final Button commentButton = (Button) dialog.findViewById(R.id.buttonComment);
-
-        usernameTextView.setText(username);
-        teamTextView.setText(post.user_team);
-        postTimeTextView.setText(post.time);
-
-        postImageView.setImageUrl(IMAGE_URL_BASE + team + "_pic.jpg", mImageLoader);
-
-        postPlaceTextView.setText(post.title);
-        postCaptionTextView.setText(post.caption);
-
-        numLikesButton.setText(post.likes + " likes");
-        numLikesButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                makeRequestShowLikes(post.post_id);
-            }
-        });
-
-        final ListView commentsListView = (ListView) dialog.findViewById(R.id.listViewComments);
-        PokeGoComment[] comments = new PokeGoComment[1];
-        comments[0] = new PokeGoComment();
-        commentsListView.setAdapter(new CommentsListArrayAdapter(this, commentsListView, comments, post.post_id, true));
-
-        thumbUpButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                makeRequestActionPost(post.post_id, "THUMB", "THUMB UP", commentsListView);
-                makeRequestNumLikesHasLiked(post.post_id, thumbUpButton, thumbDownButton, numLikesButton);
-            }
-        });
-
-        thumbDownButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                makeRequestActionPost(post.post_id, "THUMB", "THUMB DOWN", commentsListView);
-                makeRequestNumLikesHasLiked(post.post_id, thumbUpButton, thumbDownButton, numLikesButton);
-            }
-        });
-
-        commentButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                AlertDialog.Builder alert = new AlertDialog.Builder(MapsActivity.this);
-                final EditText edittext = new EditText(MapsActivity.this);
-                alert.setTitle("Comment on post");
-                alert.setView(edittext);
-
-                alert.setPositiveButton("Post", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        String content = edittext.getText().toString();
-                        makeRequestActionPost(post.post_id, "COMMENT", content, commentsListView);
-                    }
-                });
-
-                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        // what ever you want to do with No option.
-                    }
-                });
-
-                alert.show();
-            }
-        });
-
-        // Make sure it shows the correct number of likes in case that changed since log in
-        makeRequestNumLikesHasLiked(post.post_id, thumbUpButton, thumbDownButton, numLikesButton);
-
-    }
-
-    private void makeRequestShowLikes(final int post_id) {
-        RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
-        StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/get_likes.php",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        // Get the JSON Response
-                        System.out.println("Response:\n" + response);
-                        try {
-                            JSONObject responseJSON = new JSONObject(response);
-                            Toast.makeText(MapsActivity.this, responseJSON.getString("message"),
-                                    Toast.LENGTH_SHORT).show();
-
-                            if (responseJSON.has("num_rows")) {
-                                int numRows = responseJSON.getInt("num_rows");
-                                final CharSequence[] items = new CharSequence[numRows];
-                                for (int i = 0; i < numRows; ++i) {
-                                    items[i] = responseJSON.getJSONObject("" + i).getString("username");
-                                }
-
-                                // Show Likes pop up
-                                AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
-                                builder.setTitle("Likes");
-                                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        dialog.dismiss();
-                                    }
-                                });
-                                builder.setItems(items, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int item) {
-                                        // Do something with the selection
-                                        dialog.dismiss();
-                                    }
-                                });
-                                AlertDialog alert = builder.create();
-                                alert.show();
-                            }
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Toast.makeText(MapsActivity.this, "Something went wrong on response.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-                Toast.makeText(MapsActivity.this, "Something went wrong with Volley.",
-                        Toast.LENGTH_SHORT).show();
-            }
-        }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                HashMap<String,String> map = new HashMap<>();
-                map.put("post_id", "" + post_id);
-                return map;
-            }
-        };
-        requestQueue.add(request);
-    }
-
-    private void makeRequestNumLikesHasLiked(final int post_id, final Button upButton, final Button downButton, final Button numLikesButton) {
+    private void makeRequestNumLikes(final int post_id, final Button numLikesButton) {
         RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
         StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/get_num_likes.php",
                 new Response.Listener<String>() {
@@ -586,8 +606,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     Toast.LENGTH_SHORT).show();
 
                             numLikesButton.setText(responseJSON.getInt("likes") + " likes");
-                            upButton.setEnabled(responseJSON.getInt("has_liked") == 0);
-                            downButton.setEnabled(responseJSON.getInt("has_liked") == 0);
 
                             for (PokeGoPost post : postHashMap.values()) {
                                 if (post.post_id == post_id) {
@@ -620,7 +638,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         requestQueue.add(request);
     }
 
-    private void makeRequestActionPost(final int post_id, final String actionType, final String content, final ListView commentsList) {
+    private void makeRequestActionPost(final int post_id, final String content, final ListView commentsList) {
         RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
         StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/action_post.php",
                 new Response.Listener<String>() {
@@ -633,11 +651,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             Toast.makeText(MapsActivity.this, responseJSON.getString("message"),
                                     Toast.LENGTH_SHORT).show();
 
-                            if (actionType.equals("COMMENT")) {
-                                // Need to refresh comment list
-                                CommentsListArrayAdapter commentsAdapter = (CommentsListArrayAdapter) commentsList.getAdapter();
-                                commentsAdapter.makeRequestGetComments();
-                            }
+                            // Need to refresh comment list
+                            CommentsListArrayAdapter commentsAdapter = (CommentsListArrayAdapter) commentsList.getAdapter();
+                            commentsAdapter.makeRequestGetComments();
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -659,7 +675,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 map.put("post_id", "" + post_id);
                 map.put("username", username);
                 map.put("password", password);
-                map.put("action_type", actionType);
                 map.put("content", content);
                 return map;
             }
@@ -667,8 +682,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         requestQueue.add(request);
     }
 
+    private void makeRequestLikePost(final int post_id, final String isUpDown) {
+        RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
+        StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/like_post.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Get the JSON Response
+                        System.out.println("Response:\n" + response);
+                        try {
+                            JSONObject responseJSON = new JSONObject(response);
+                            Toast.makeText(MapsActivity.this, responseJSON.getString("message"),
+                                    Toast.LENGTH_SHORT).show();
 
-
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(MapsActivity.this, "Something went wrong on response.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+                Toast.makeText(MapsActivity.this, "Something went wrong with Volley.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String,String> map = new HashMap<>();
+                map.put("post_id", "" + post_id);
+                map.put("username", username);
+                map.put("password", password);
+                map.put("isUpDown", isUpDown);
+                return map;
+            }
+        };
+        requestQueue.add(request);
+    }
 
 
     public static void setListViewHeightBasedOnChildren(ListView listView) {

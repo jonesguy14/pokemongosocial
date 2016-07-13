@@ -15,7 +15,8 @@ function newPost() {
         isset($_POST["latitude"]) && 
         isset($_POST["longitude"]) &&
         isset($_POST["username"]) &&
-        isset($_POST["team"]) ) {
+        isset($_POST["team"]) &&
+        isset($_POST["only_visible_team"]) ) {
 
         $username = $_POST["username"];
         $title = $_POST["title"];
@@ -23,8 +24,9 @@ function newPost() {
         $latitude = $_POST["latitude"];
         $longitude = $_POST["longitude"];
         $team = $_POST["team"];
+        $onlyVisibleTeam = $_POST["only_visible_team"];
             
-        $query = "INSERT INTO posts(user_id, title, caption, time, latitude, longitude, user_team) values ('$username', '$title', '$caption', CURRENT_TIMESTAMP, '$latitude', '$longitude', '$team');";
+        $query = "INSERT INTO posts(user_id, title, caption, time, latitude, longitude, user_team, only_visible_team) values ('$username', '$title', '$caption', CURRENT_TIMESTAMP, '$latitude', '$longitude', '$team', $onlyVisibleTeam);";
 
         $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
 

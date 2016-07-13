@@ -5,6 +5,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     getAllUserLikes();
 }
 
+// THIS ISN'T USED ANYMORE
 function getAllUserLikes() {
     global $connect;
 

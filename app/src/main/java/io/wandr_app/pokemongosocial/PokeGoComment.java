@@ -14,6 +14,7 @@ public class PokeGoComment {
 
     public String content;
     public String time;
+    public int likes;
 
     public PokeGoComment(JSONObject comment) {
         try {
@@ -22,6 +23,7 @@ public class PokeGoComment {
             profileImagePath = comment.getString("profile_image_path");
             content = comment.getString("content");
             time = comment.getString("time");
+            likes = comment.getInt("likes");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -33,6 +35,7 @@ public class PokeGoComment {
         team = "";
         time = "";
         content = "No comments to display.";
+        likes = 0;
     }
 
 }

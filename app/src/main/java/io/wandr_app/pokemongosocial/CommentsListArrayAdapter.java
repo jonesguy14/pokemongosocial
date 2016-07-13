@@ -52,6 +52,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
         TextView teamTextView = (TextView) convertView.findViewById(R.id.textViewTeam);
         TextView usernameTextView = (TextView) convertView.findViewById(R.id.textViewUsername);
         TextView timeTextView = (TextView) convertView.findViewById(R.id.textViewTime);
+        TextView likesTextView = (TextView) convertView.findViewById(R.id.textViewLikes);
         TextView contentTextView = (TextView) convertView.findViewById(R.id.textViewContent);
 
         teamTextView.setText(values[position].team);
@@ -61,6 +62,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
             usernameTextView.setText(values[position].username);
         }
         timeTextView.setText(values[position].time);
+        likesTextView.setText("+" + values[position].likes);
         contentTextView.setText(values[position].content);
 
         return convertView;

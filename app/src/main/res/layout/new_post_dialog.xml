@@ -48,13 +48,24 @@
             android:id="@+id/editTextCaption" />
     </LinearLayout>
 
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Post only visible to team"
+        android:id="@+id/checkBoxOnlyVisibleTeam"
+        android:layout_below="@+id/linearLayoutCaption"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp" />
+
     <Button
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="Post"
         android:id="@+id/buttonPost"
-        android:layout_below="@+id/linearLayoutCaption"
+        android:layout_below="@+id/checkBoxOnlyVisibleTeam"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp" />
+        android:layout_marginTop="15dp" />
+
+
 
 </RelativeLayout>

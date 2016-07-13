@@ -17,10 +17,6 @@ function getNumLikes() {
 
     if ($result) {
         $response = mysqli_fetch_assoc($result);
-        $query = "SELECT action_id from actions where post_id='$post_id' and action_type='THUMB' and user_id='$username';";
-        $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
-        $response["has_liked"] = mysqli_num_rows($result);
-        $response["num_rows"] = $numRows;
         $response["success"] = 1;
         $response["message"] = "Success!";
         echo json_encode($response);

@@ -12,10 +12,15 @@ function getNearbyPosts() {
         
         $latitude = $_POST["latitude"];
         $longitude = $_POST["longitude"];
+        $range = $_POST["range"];
+        $team = $_POST["team"];
 
-        $range = 100;
-
-        $query = "SELECT * from posts where latitude < ($latitude + $range) AND latitude > ($latitude - $range) AND longitude < ($longitude + $range) AND longitude > ($longitude - $range);";
+        $query = "SELECT * from posts where 
+            latitude < ($latitude + $range) AND 
+            latitude > ($latitude - $range) AND 
+            longitude < ($longitude + $range) AND 
+            longitude > ($longitude - $range) AND 
+            (only_visible_team = 0 OR user_team = '$team');";
 
         $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
         mysqli_close($connect);

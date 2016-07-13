@@ -29,11 +29,21 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="#000"
+        android:text="+12"
+        android:id="@+id/textViewLikes"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="2016-7-2 4:20"
         android:id="@+id/textViewTime"
+        android:paddingEnd="5dp"
         android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_toStartOf="@+id/textViewLikes" />
 
     <TextView
         android:layout_width="wrap_content"
