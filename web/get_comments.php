@@ -10,9 +10,10 @@ function getAllUserComments() {
 
     $post_id = $_POST["post_id"];
 
-    $query = "SELECT a.content, a.time, a.likes, u.username, u.team, u.profile_image_path FROM 
+    $query = "SELECT a.action_id, a.content, TIMESTAMPDIFF(minute, a.time, CURRENT_TIMESTAMP) as time, a.likes, u.username, u.team, u.profile_image_path FROM 
                 (SELECT * FROM actions WHERE post_id='$post_id') as a 
-                INNER JOIN users as u ON a.user_id=u.username;";
+                INNER JOIN users as u ON a.user_id=u.username
+                ORDER BY a.action_id ASC;";
     $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
 
     $numRows = mysqli_num_rows($result);

@@ -61,7 +61,11 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
         } else {
             usernameTextView.setText(values[position].username);
         }
-        timeTextView.setText(values[position].time);
+        if (values[position].time >= 1) {
+            timeTextView.setText(values[position].time + " min ago");
+        } else {
+            timeTextView.setText("Just now");
+        }
         likesTextView.setText("+" + values[position].likes);
         contentTextView.setText(values[position].content);
 

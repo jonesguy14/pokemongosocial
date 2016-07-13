@@ -21,21 +21,32 @@ public class PokeGoPost {
     public String user_team;
     public String title;
     public String caption;
-    public String time;
+    public int time;
     public double latitude;
     public double longitude;
     public int likes;
     public boolean hasLiked;
     public boolean onlyVisibleTeam;
 
+    /**
+     * This constructor is used when the current use makes a post, so it just happened.
+     * @param post_id
+     * @param user_id
+     * @param user_team
+     * @param title
+     * @param caption
+     * @param timemsec
+     * @param latitude
+     * @param longitude
+     * @param onlyVisibleTeam
+     */
     public PokeGoPost(int post_id, String user_id, String user_team, String title, String caption, long timemsec, double latitude, double longitude, boolean onlyVisibleTeam) {
         this.post_id = post_id;
         this.user_id = user_id;
         this.user_team = user_team;
         this.title = title;
         this.caption = caption;
-        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
-        this.time = formatter.format(new Date(timemsec));
+        this.time = 0;
         this.latitude = latitude;
         this.longitude = longitude;
         this.likes = 1;
@@ -43,6 +54,10 @@ public class PokeGoPost {
         this.onlyVisibleTeam = onlyVisibleTeam;
     }
 
+    /**
+     * This constructor is used when grabbing posts from online.
+     * @param postJSON
+     */
     public PokeGoPost(JSONObject postJSON) {
         try {
             post_id = postJSON.getInt("post_id");
@@ -50,7 +65,7 @@ public class PokeGoPost {
             user_team = postJSON.getString("user_team");
             title = postJSON.getString("title");
             caption = postJSON.getString("caption");
-            time = postJSON.getString("time");
+            time = postJSON.getInt("time");
             latitude = postJSON.getDouble("latitude");
             longitude = postJSON.getDouble("longitude");
             likes = postJSON.getInt("likes");

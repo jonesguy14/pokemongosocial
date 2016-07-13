@@ -13,7 +13,7 @@ public class PokeGoComment {
     public String profileImagePath;
 
     public String content;
-    public String time;
+    public int time; // time elapsed in minutes
     public int likes;
 
     public PokeGoComment(JSONObject comment) {
@@ -22,7 +22,7 @@ public class PokeGoComment {
             team = comment.getString("team");
             profileImagePath = comment.getString("profile_image_path");
             content = comment.getString("content");
-            time = comment.getString("time");
+            time = comment.getInt("time");
             likes = comment.getInt("likes");
         } catch (Exception e) {
             e.printStackTrace();
@@ -33,7 +33,7 @@ public class PokeGoComment {
         // Used as a placeholder while comments load
         username = "";
         team = "";
-        time = "";
+        time = 0;
         content = "No comments to display.";
         likes = 0;
     }

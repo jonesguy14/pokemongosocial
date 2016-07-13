@@ -93,6 +93,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public HashMap<Marker, PokeGoPost> postHashMap;
     private Marker selectedMarker;
+    private Marker currLocationMarker;
     private ArrayList<PokeGoPost> loadedPosts;
 
     @Override
@@ -273,6 +274,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     Bitmap resized = PokeGoPost.getResizedBitmap(bitmap, bitmap.getWidth() * 2, bitmap.getHeight() * 2);
                                     marker.setIcon(BitmapDescriptorFactory.fromBitmap(resized));
                                     marker.setAnchor(0.5f, 0.5f);
+                                    marker.setInfoWindowAnchor(0.5f, 0.0f);
                                 }
                             }, 0, 0, null,
                             new Response.ErrorListener() {
@@ -383,7 +385,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Add marker for current location
         LatLng postCoord = new LatLng(locationListener.getCurrLocation().getLatitude(),
                 locationListener.getCurrLocation().getLongitude());
-        final Marker marker = mMap.addMarker(
+        if (currLocationMarker != null) currLocationMarker.remove();
+        currLocationMarker = mMap.addMarker(
                 new MarkerOptions()
                     .position(postCoord)
                     .title("You Are Here")
@@ -418,7 +421,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         usernameTextView.setText(username);
         teamTextView.setText(post.user_team);
-        postTimeTextView.setText(post.time);
+        if (post.time > 1) {
+            postTimeTextView.setText(post.time + " min ago");
+        } else {
+            postTimeTextView.setText("Just now");
+        }
+
 
         //postImageView.setImageUrl(IMAGE_URL_BASE + post.getImageURL(), mImageLoader);
         // Get the right image for the post

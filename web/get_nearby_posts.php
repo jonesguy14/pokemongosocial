@@ -15,7 +15,8 @@ function getNearbyPosts() {
         $range = $_POST["range"];
         $team = $_POST["team"];
 
-        $query = "SELECT * from posts where 
+        $query = "SELECT post_id, user_id, title, caption, TIMESTAMPDIFF(minute, time, CURRENT_TIMESTAMP) as time, latitude, longitude, likes, user_team, only_visible_team
+            FROM posts WHERE 
             latitude < ($latitude + $range) AND 
             latitude > ($latitude - $range) AND 
             longitude < ($longitude + $range) AND 
