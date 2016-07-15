@@ -637,7 +637,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void makeRequestNewPost(final String title, final String caption, final double latitude, final double longitude, final boolean onlyVisibleTeam) {
         RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
-        StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/new_post.php",
+        StringRequest request = new StringRequest(Request.Method.POST, "https://wandr-app.io/pokemon/new_post.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -732,7 +732,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void makeRequestActionPost(final int post_id, final String content, final ListView commentsList) {
         RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
-        StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/action_post.php",
+        StringRequest request = new StringRequest(Request.Method.POST, "https://wandr-app.io/pokemon/action_post.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -776,7 +776,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void makeRequestLikePost(final int post_id, final String post_user_id, final int change) {
         RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
-        StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/like_post.php",
+        StringRequest request = new StringRequest(Request.Method.POST, "https://wandr-app.io/pokemon/like_post.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

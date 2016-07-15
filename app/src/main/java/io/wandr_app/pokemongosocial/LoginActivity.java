@@ -109,7 +109,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void makeRequestLogin(final String username, final String password) {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
-        StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/login.php",
+        StringRequest request = new StringRequest(Request.Method.POST, "https://wandr-app.io/pokemon/login.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -193,7 +193,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void makeRequestNewUser(final AlertDialog dialog) {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
-        StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/new_user.php",
+        StringRequest request = new StringRequest(Request.Method.POST, "https://wandr-app.io/pokemon/new_user.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

@@ -98,7 +98,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
             } else {
                 timeTextView.setText("Just now");
             }
-            likesTextView.setText("+" + values[position].likes);
+            likesTextView.setText(getNumLikesString(values[position].likes));
 
             // Set the button to correct image if the comment was already voted on
             if (values[position].thumbs == 1) {
