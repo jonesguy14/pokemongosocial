@@ -6,4 +6,6 @@
     <color name="colorAccentDark">#c7a008</color>-->
     <color name="colorAccent">#b51f1f</color>
     <color name="colorAccentDark">#852020</color>
+    <color name="bulbasaurBlue">#83eec5</color>
+    <color name="bulbasaurBlueDark">#62d5b4</color>
 </resources>

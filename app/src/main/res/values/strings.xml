@@ -160,4 +160,5 @@
         <item>#151 Mew</item>
     </string-array>
     <string name="title_activity_maps">Map</string>
+    <string name="comment">Comment</string>
 </resources>

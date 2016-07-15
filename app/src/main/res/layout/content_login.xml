@@ -75,7 +75,7 @@
         android:layout_marginTop="20dp"
         android:layout_below="@+id/linearLayout"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/button_shape_fc"
+        android:background="@drawable/button_shape"
         android:textColor="#FFF"/>
 
     <Button
@@ -86,7 +86,7 @@
         android:layout_marginTop="10dp"
         android:layout_below="@+id/buttonLogin"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/button_shape_fc_accent"
+        android:background="@drawable/button_shape_accent"
         android:textColor="#FFF"/>
 
 </RelativeLayout>
