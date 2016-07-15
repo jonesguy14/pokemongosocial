@@ -12,6 +12,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="username"
         android:textColor="#000"
+        android:textStyle="bold"
         android:id="@+id/textViewUsername"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true" />
@@ -32,6 +33,7 @@
         android:textColor="#000"
         android:text="+12"
         android:id="@+id/textViewLikes"
+        android:textStyle="bold"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true" />
 
@@ -45,15 +47,37 @@
         android:layout_alignParentTop="true"
         android:layout_toStartOf="@+id/textViewLikes" />
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Here is the comment's content, it goes here hasd ioeadsf lkaseli ajsdlk ajsleij alsdkfja lseijf"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="5dp"
-        android:id="@+id/textViewContent"
-        android:layout_below="@+id/textViewUsername"
-        android:layout_alignParentStart="true" />
+        android:layout_below="@+id/textViewUsername" >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="5"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Here is the comment's content, it goes here hasd ioeadsf lkaseli ajsdlk ajsleij alsdkfja lseijf"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:id="@+id/textViewContent" />
+
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_thumbs_up_down_black_24dp"
+            android:tint="@android:color/darker_gray"
+            android:background="@null"
+            android:id="@+id/buttonThumbsUpDown"
+            android:adjustViewBounds="true"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:scaleType="fitCenter"
+            android:layout_margin="5dp"
+            android:layout_gravity="center_vertical"/>
+
+    </LinearLayout>
+
 
 </RelativeLayout>

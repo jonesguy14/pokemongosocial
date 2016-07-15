@@ -8,17 +8,24 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin">
 
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/imageViewNewPost"/>
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
+        android:layout_below="@+id/imageViewNewPost"
         android:id="@+id/linearLayoutPlace">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="What did you find?"
+            android:text="I found a:   "
             android:id="@+id/textViewFind" />
         <Spinner
             android:layout_width="0dp"
@@ -64,8 +71,8 @@
         android:id="@+id/buttonPost"
         android:layout_below="@+id/checkBoxOnlyVisibleTeam"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="15dp" />
-
-
+        android:layout_marginTop="15dp"
+        android:background="@drawable/button_shape_accent"
+        android:textColor="#FFF"/>
 
 </RelativeLayout>

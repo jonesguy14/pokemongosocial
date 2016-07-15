@@ -8,4 +8,9 @@
     <color name="colorAccentDark">#852020</color>
     <color name="bulbasaurBlue">#83eec5</color>
     <color name="bulbasaurBlueDark">#62d5b4</color>
+    <color name="Instinct">#cba805</color>
+    <color name="Mystic">#0677ee</color>
+    <color name="Valor">#f3150a</color>
+    <color name="thumbsUp">#00a805</color>
+    <color name="thumbsDown">#bd0000</color>
 </resources>

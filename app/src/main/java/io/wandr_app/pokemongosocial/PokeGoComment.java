@@ -15,6 +15,8 @@ public class PokeGoComment {
     public String content;
     public int time; // time elapsed in minutes
     public int likes;
+    public int thumbs; // -1 for down, 0 for none, 1 for up
+    public int action_id;
 
     public PokeGoComment(JSONObject comment) {
         try {
@@ -24,6 +26,8 @@ public class PokeGoComment {
             content = comment.getString("content");
             time = comment.getInt("time");
             likes = comment.getInt("likes");
+            action_id = comment.getInt("action_id");
+            thumbs = 0;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -36,6 +40,8 @@ public class PokeGoComment {
         time = 0;
         content = "No comments to display.";
         likes = 0;
+        action_id = 0;
+        thumbs = 0;
     }
 
 }

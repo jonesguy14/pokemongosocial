@@ -21,17 +21,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 function likePost() {
     global $pdo;
 
-    if (isset($_POST["post_id"]) && isset($_POST["post_user_id"]) && isset($_POST["isUpDown"])) {
+    if (isset($_POST["post_id"]) && isset($_POST["post_user_id"]) && isset($_POST["change"])) {
 
         $post_id = $_POST["post_id"];
         $post_user_id = $_POST["post_user_id"];
-        $isUpDown = $_POST["isUpDown"];
-
-        if ($isUpDown === "UP") {
-            $change = 1;
-        } else {
-            $change = -1;
-        }
+        $change = $_POST["change"];
 
         $stmt = $pdo->prepare("UPDATE posts SET likes=likes+(?) WHERE post_id=?");
 

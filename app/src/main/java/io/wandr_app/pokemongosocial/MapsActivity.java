@@ -8,14 +8,17 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.LocationManager;
+import android.media.Image;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -48,6 +51,13 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -80,6 +90,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker selectedMarker;
     private Marker currLocationMarker;
     private ArrayList<PokeGoPost> loadedPosts;
+    private HashMap<Integer, String> postThumbsMap;
+    private HashMap<Integer, String> commentThumbsMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +135,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         loadedPosts = new ArrayList<>();
         postHashMap = new HashMap<>();
+
+        postThumbsMap = new HashMap<>();
+        loadPostThumbsMap();
+
+        commentThumbsMap = new HashMap<>();
+        loadCommentThumbsMap();
+
 
         makeRequestGetUserInfo(username);
 
@@ -168,7 +187,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             usernameTextView.setText(responseJSON.getString("username"));
                             teamTextView.setText(responseJSON.getString("team") + " Team");
                             timeJoinedTextView.setText("Joined " + responseJSON.getString("time_joined").split(" ")[0]);
-                            reputationTextView.setText("Reputation: " + responseJSON.getString("reputation"));
+                            reputationTextView.setText("Reputation: " + getNumLikesString(responseJSON.getInt("reputation")));
 
                             username = responseJSON.getString("username");
                             team = responseJSON.getString("team");
@@ -232,12 +251,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (mMap != null) {
             for (PokeGoPost p : loadedPosts) {
 
+                // Check if it already exists
                 boolean shouldAdd = true;
                 for (PokeGoPost existingPost : postHashMap.values()) {
                     if (existingPost.post_id == p.post_id) {
                         // Already exists, don't add again
                         shouldAdd = false;
                         break;
+                    }
+                }
+
+                // Check if user has voted on it already
+                if (postThumbsMap.containsKey(p.post_id)) {
+                    if (postThumbsMap.get(p.post_id).equals("UP")) {
+                        p.thumbs = 1;
+                    } else if (postThumbsMap.get(p.post_id).equals("DOWN")) {
+                        p.thumbs = -1;
                     }
                 }
 
@@ -264,7 +293,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
                     requestQueue.add(request);
 
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(postCoord, 15));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(postCoord, 20));
                     postHashMap.put(marker, p);
                 }
             }
@@ -390,6 +419,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         builder.setView(getLayoutInflater().inflate(R.layout.view_post_dialog, null))
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        // Update reputation
+                        makeRequestGetUserInfo(username);
                         dialog.dismiss();
                     }
                 });
@@ -412,8 +443,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         final ImageButton thumbDownButton = (ImageButton) dialog.findViewById(R.id.buttonThumbDown);
         final Button commentButton = (Button) dialog.findViewById(R.id.buttonComment);
 
-        usernameTextView.setText(username);
+        usernameTextView.setText(post.user_id);
+
         teamTextView.setText(post.user_team);
+        if (post.user_team.equals("Instinct")) {
+            teamTextView.setTextColor(getResources().getColor(R.color.Instinct));
+        } else if (post.user_team.equals("Mystic")) {
+            teamTextView.setTextColor(getResources().getColor(R.color.Mystic));
+        } else if (post.user_team.equals("Valor")) {
+            teamTextView.setTextColor(getResources().getColor(R.color.Valor));
+        }
+
+
         if (post.time > 1) {
             postTimeTextView.setText(post.time + " min ago");
         } else {
@@ -457,34 +498,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         final ListView commentsListView = (ListView) dialog.findViewById(R.id.listViewComments);
         PokeGoComment[] comments = new PokeGoComment[1];
         comments[0] = new PokeGoComment();
-        commentsListView.setAdapter(new CommentsListArrayAdapter(this, commentsListView, comments, post.post_id, true));
+        commentsListView.setAdapter(new CommentsListArrayAdapter(this, commentThumbsMap, username, password, commentsListView, comments, post.post_id, true));
 
-        if (post.hasLiked) {
-            thumbUpButton.setEnabled(false);
-            thumbDownButton.setEnabled(false);
+        if (post.thumbs == 1) {
+            thumbUpButton.setColorFilter(Color.GREEN);
+        } else if (post.thumbs == -1) {
+            thumbDownButton.setColorFilter(Color.RED);
         }
 
         thumbUpButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
-                makeRequestLikePost(post.post_id, post.user_id, "UP");
-                post.likes++;
-                post.hasLiked = true;
-                thumbUpButton.setEnabled(false);
-                thumbDownButton.setEnabled(false);
-                numLikes.setText(getNumLikesString(post.likes));
+                if (post.thumbs != 1) {
+                    makeRequestLikePost(post.post_id, post.user_id, 1 - post.thumbs);
+                    post.likes += 1 - post.thumbs;
+                    post.thumbs = 1;
+                    thumbUpButton.setColorFilter(Color.GREEN);
+                    thumbDownButton.setColorFilter(Color.BLACK);
+                    numLikes.setText(getNumLikesString(post.likes));
+                    recordPostThumbs(post.post_id, "UP");
+                }
             }
         });
 
         thumbDownButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
-                makeRequestLikePost(post.post_id, post.user_id, "DOWN");
-                post.likes--;
-                post.hasLiked = true;
-                thumbUpButton.setEnabled(false);
-                thumbDownButton.setEnabled(false);
-                numLikes.setText(getNumLikesString(post.likes));
+                if (post.thumbs != -1) {
+                    makeRequestLikePost(post.post_id, post.user_id, -1 - post.thumbs);
+                    post.likes += -1 - post.thumbs;
+                    post.thumbs = -1;
+                    thumbDownButton.setColorFilter(Color.RED);
+                    thumbUpButton.setColorFilter(Color.BLACK);
+                    numLikes.setText(getNumLikesString(post.likes));
+                    recordPostThumbs(post.post_id, "DOWN");
+                }
             }
         });
 
@@ -519,15 +567,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private String getNumLikesString(int numLikes) {
-        return numLikes > 0 ? "+ " + numLikes : String.valueOf(numLikes);
+        return numLikes > 0 ? "+" + numLikes : String.valueOf(numLikes);
     }
 
     public void showNewPostDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("New Post")
-                .setView(getLayoutInflater().inflate(R.layout.new_post_dialog, null));
+        builder.setView(getLayoutInflater().inflate(R.layout.new_post_dialog, null));
         final AlertDialog dialog = builder.create();
         dialog.show();
+
+        final ImageView pokemonImageView = (ImageView) dialog.findViewById(R.id.imageViewNewPost);
 
         final EditText captionEditText = (EditText) dialog.findViewById(R.id.editTextCaption);
 
@@ -537,6 +586,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         pokemonSpinner.setAdapter(adapter);
 
+        // Change the pokemon image every time they select an item from the spinner
+        pokemonSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                // Get the right image for the post
+                ImageRequest request = new ImageRequest(IMAGE_URL_BASE + (pokemonSpinner.getSelectedItemPosition()+1) + ".png",
+                        new Response.Listener<Bitmap>() {
+                            @Override
+                            public void onResponse(Bitmap bitmap) {
+                                Bitmap resized = PokeGoPost.getResizedBitmap(bitmap, bitmap.getWidth() * 3, bitmap.getHeight() * 3);
+                                pokemonImageView.setImageBitmap(resized);
+                            }
+                        }, 0, 0, null,
+                        new Response.ErrorListener() {
+                            public void onErrorResponse(VolleyError error) {
+                                // Do nothing
+                            }
+                        });
+                RequestQueue requestQueue = VolleySingleton.getInstance(MapsActivity.this).getRequestQueue();
+                requestQueue.add(request);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Do nothing
+            }
+        });
+
         final Button postButton = (Button) dialog.findViewById(R.id.buttonPost);
 
         final CheckBox onlyVisibleTeamCheckBox = (CheckBox) dialog.findViewById(R.id.checkBoxOnlyVisibleTeam);
@@ -545,7 +622,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         postButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (isCurrentLocationAvailable()) {
-                    String newPostTitle = pokemonSpinner.getSelectedItem().toString();
+                    String newPostTitle = "I found a " + pokemonSpinner.getSelectedItem().toString() + "!";
                     System.out.println("Selected Item: " + pokemonSpinner.getSelectedItem().toString());
                     String newPostCaption = captionEditText.getText().toString();
                     double newPostLatitude = locationListener.getCurrLocation().getLatitude();
@@ -572,9 +649,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     Toast.LENGTH_SHORT).show();
 
                             // Create a PokeGoPost object and add it to the map
-                            PokeGoPost newPost = new PokeGoPost(responseJSON.getInt("post_id"), username, team, title, caption,
-                                    System.currentTimeMillis(), latitude, longitude, onlyVisibleTeam);
-                            newPost.hasLiked = true;
+                            PokeGoPost newPost = new PokeGoPost(responseJSON.getInt("post_id"), username, team,
+                                    title, caption, latitude, longitude, onlyVisibleTeam);
                             loadedPosts.add(newPost);
                             addPostMarkers();
                         } catch (Exception e) {
@@ -698,7 +774,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         requestQueue.add(request);
     }
 
-    private void makeRequestLikePost(final int post_id, final String post_user_id, final String isUpDown) {
+    private void makeRequestLikePost(final int post_id, final String post_user_id, final int change) {
         RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
         StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/like_post.php",
                 new Response.Listener<String>() {
@@ -732,14 +808,129 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 map.put("post_user_id", post_user_id);
                 map.put("username", username);
                 map.put("password", password);
-                map.put("isUpDown", isUpDown);
+                map.put("change", "" + change);
                 return map;
             }
         };
         requestQueue.add(request);
     }
 
+    /**
+     * Records if a post has been thumbed up or down, so that repeated voting is stopped.
+     * @param post_id the post that is liked
+     * @param upOrDown "UP" or "DOWN", based on thumb
+     */
+    private void recordPostThumbs(int post_id, String upOrDown) {
+        if (postThumbsMap.containsKey(post_id)) {
+            postThumbsMap.remove(post_id);
+        }
+        postThumbsMap.put(post_id, upOrDown);
 
+        FileOutputStream outputStream;
+        String data = post_id + " " + upOrDown + "\n";
+        try {
+            outputStream = openFileOutput("posts_thumbs.txt", MODE_APPEND);
+            outputStream.write(data.getBytes());
+            outputStream.close();
+        }
+        catch (Exception e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+    }
+
+    /**
+     * Read the post_thumbs file and make the hash map that says which posts have been thumbed already.
+     */
+    private void loadPostThumbsMap() {
+        String ret = "";
+
+        File postsFile = new File(getFilesDir(), "posts_thumbs.txt");
+
+        try {
+            int length = (int) postsFile.length();
+            if (length > 0) {
+                byte[] bytes = new byte[length];
+
+                FileInputStream in = openFileInput("posts_thumbs.txt");
+                try {
+                    in.read(bytes);
+                } finally {
+                    in.close();
+                }
+
+                ret = new String(bytes);
+
+                String[] lines = ret.split("\n");
+                for (String line : lines) {
+                    try {
+                        String[] post_thumbs = line.split(" ");
+                        if (postThumbsMap.containsKey(Integer.parseInt(post_thumbs[0]))) {
+                            postThumbsMap.remove(Integer.parseInt(post_thumbs[0]));
+                        }
+                        postThumbsMap.put(Integer.parseInt(post_thumbs[0]), post_thumbs[1]);
+                    } catch (NumberFormatException e) {
+                        // Somehow there wasn't an integer, carry on
+                        Log.e("Main", e.toString());
+                    }
+                }
+            }
+        }
+        catch (FileNotFoundException e) {
+            Log.e("Main", "File not found: " + e.toString());
+        } catch (IOException e) {
+            Log.e("Main", "Cannot read file: " + e.toString());
+        }
+    }
+
+    /**
+     * Read the comment_thumbs file and make the hash map that says which comments have been thumbed already.
+     */
+    private void loadCommentThumbsMap() {
+        String ret = "";
+
+        File postsFile = new File(getFilesDir(), "comments_thumbs.txt");
+
+        try {
+            int length = (int) postsFile.length();
+            if (length > 0) {
+                byte[] bytes = new byte[length];
+
+                FileInputStream in = openFileInput("comments_thumbs.txt");
+                try {
+                    in.read(bytes);
+                } finally {
+                    in.close();
+                }
+
+                ret = new String(bytes);
+
+                String[] lines = ret.split("\n");
+                for (String line : lines) {
+                    try {
+                        String[] comment_thumbs = line.split(" ");
+                        if (commentThumbsMap.containsKey(Integer.parseInt(comment_thumbs[0]))) {
+                            commentThumbsMap.remove(Integer.parseInt(comment_thumbs[0]));
+                        }
+                        commentThumbsMap.put(Integer.parseInt(comment_thumbs[0]), comment_thumbs[1]);
+                    } catch (NumberFormatException e) {
+                        // Somehow there wasn't an integer, carry on
+                        Log.e("Main", e.toString());
+                    }
+                }
+            }
+        }
+        catch (FileNotFoundException e) {
+            Log.e("Main", "File not found: " + e.toString());
+        } catch (IOException e) {
+            Log.e("Main", "Cannot read file: " + e.toString());
+        }
+    }
+
+    /**
+     * Used to make the view post dialog fully scrollable.
+     * Needed so that the listview of comments expands as needed.
+     * @param listView listview affected
+     */
     public static void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null)

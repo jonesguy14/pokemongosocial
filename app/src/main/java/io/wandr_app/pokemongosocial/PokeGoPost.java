@@ -25,7 +25,7 @@ public class PokeGoPost {
     public double latitude;
     public double longitude;
     public int likes;
-    public boolean hasLiked;
+    public int thumbs; // -1 for down, 0 for none, 1 for up
     public boolean onlyVisibleTeam;
 
     /**
@@ -35,12 +35,11 @@ public class PokeGoPost {
      * @param user_team
      * @param title
      * @param caption
-     * @param timemsec
      * @param latitude
      * @param longitude
      * @param onlyVisibleTeam
      */
-    public PokeGoPost(int post_id, String user_id, String user_team, String title, String caption, long timemsec, double latitude, double longitude, boolean onlyVisibleTeam) {
+    public PokeGoPost(int post_id, String user_id, String user_team, String title, String caption, double latitude, double longitude, boolean onlyVisibleTeam) {
         this.post_id = post_id;
         this.user_id = user_id;
         this.user_team = user_team;
@@ -50,7 +49,7 @@ public class PokeGoPost {
         this.latitude = latitude;
         this.longitude = longitude;
         this.likes = 1;
-        this.hasLiked = false;
+        this.thumbs = 1;
         this.onlyVisibleTeam = onlyVisibleTeam;
     }
 
@@ -70,18 +69,23 @@ public class PokeGoPost {
             longitude = postJSON.getDouble("longitude");
             likes = postJSON.getInt("likes");
             onlyVisibleTeam = postJSON.getInt("only_visible_team") == 1;
-            hasLiked = false;
+            thumbs = 0;
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     /**
-     * This is borderline retarded
+     * This is guaranteed retarded
+     * I found a #XXX blah blah! => XXX.png
      * @return image url of the image of the pokemon
      */
     public String getImageURL() {
-        return title.split(" ")[0].substring(1) + ".png";
+        if (title.split(" ").length >= 4) {
+            return title.split(" ")[3].substring(1) + ".png";
+        } else {
+            return title.split(" ")[0].substring(1) + ".png";
+        }
     }
 
     public static Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {

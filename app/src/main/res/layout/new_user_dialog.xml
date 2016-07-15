@@ -14,15 +14,16 @@
         android:layout_centerHorizontal="true"
         android:id="@+id/linearLayoutUsername">
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="2"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="Username:"
             android:id="@+id/textViewUsername" />
         <EditText
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:id="@+id/editTextUsername" />
     </LinearLayout>
 
@@ -34,15 +35,16 @@
         android:layout_marginTop="10dp"
         android:id="@+id/linearLayoutPassword">
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="2"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="Password:"
             android:id="@+id/textViewPassword" />
         <EditText
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:inputType="textPassword"
             android:ems="10"
             android:id="@+id/editTextPassword" />
@@ -56,15 +58,16 @@
         android:layout_marginTop="10dp"
         android:id="@+id/linearLayoutConfirmPassword">
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="2"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="Confirm:"
             android:id="@+id/textViewConfirmPassword" />
         <EditText
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:inputType="textPassword"
             android:ems="10"
             android:id="@+id/editTextConfirmPassword" />

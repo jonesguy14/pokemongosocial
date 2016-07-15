@@ -26,6 +26,7 @@
                 android:layout_alignParentTop="true"
                 android:id="@+id/textViewUsername"
                 android:textColor="#000"
+                android:textStyle="bold"
                 android:text="userame"
                 />
 
@@ -42,6 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
+                android:paddingEnd="5dp"
                 android:id="@+id/textViewTimeJoined"
                 android:text="Joined 12/31/2016"
                 />
@@ -51,9 +53,11 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
+                android:paddingEnd="5dp"
                 android:id="@+id/textViewReputation"
                 android:textColor="#000"
-                android:text="Reputation: 0"
+                android:textSize="16sp"
+                android:text="Reputation: +100"
                 />
 
         </RelativeLayout>
@@ -69,6 +73,7 @@
             android:layout_weight="9"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
             tools:context="io.wandr_app.wandr.MapsActivity" />
 
     </LinearLayout>
@@ -79,7 +84,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:layout_margin="@dimen/fab_margin"
+        android:layout_margin="20dp"
         android:src="@android:drawable/ic_dialog_dialer" />
 
 </RelativeLayout>

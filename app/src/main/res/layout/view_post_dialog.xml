@@ -27,6 +27,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:id="@+id/textViewUsername"
+                    android:textStyle="bold"
                     android:textColor="#000"
                     android:text="username"
                     android:paddingEnd="5dp"
@@ -55,7 +56,8 @@
                     android:layout_alignParentTop="true"
                     android:layout_alignParentEnd="true"
                     android:padding="5dp"
-                    android:id="@+id/imageViewPublicOrTeam" />
+                    android:id="@+id/imageViewPublicOrTeam"
+                    android:tint="@android:color/darker_gray" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -84,6 +86,7 @@
                 android:id="@+id/textViewPostPlace"
                 android:textColor="#000"
                 android:text="Post title"
+                android:textStyle="bold"
                 />
 
             <LinearLayout
@@ -105,10 +108,12 @@
                 <TextView
                     android:layout_width="0dip"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
+                    android:layout_height="fill_parent"
+                    android:gravity="center_horizontal|center_vertical"
                     android:id="@+id/viewNumLikes"
                     android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
                     android:text="+200"
                     android:textColor="#000" />
 
