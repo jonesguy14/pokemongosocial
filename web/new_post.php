@@ -4,11 +4,25 @@
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     require 'connection.php';
-    checkLogin();
+
+    if (isset($_POST["username"]) && isset($_POST["password"])) {
+        $loginCheck = checkLogin($_POST["username"], $_POST["password"]);
+        if ($loginCheck["success"] === 1) {
+            // Successful login
+            newPost();
+        } else {
+            echo json_encode($loginCheck);
+        }
+    } else {
+        $response["success"] = 0;
+        $response["message"] = "Verification failed, username and password needed.";
+        echo json_encode($response);
+    }
+    
 }
 
 function newPost() {
-    global $connect;
+    global $pdo;
 
     if( isset($_POST["title"]) && 
         isset($_POST["caption"]) &&
@@ -25,27 +39,25 @@ function newPost() {
         $longitude = $_POST["longitude"];
         $team = $_POST["team"];
         $onlyVisibleTeam = $_POST["only_visible_team"];
-            
-        $query = "INSERT INTO posts(user_id, title, caption, time, latitude, longitude, user_team, only_visible_team) values ('$username', '$title', '$caption', CURRENT_TIMESTAMP, '$latitude', '$longitude', '$team', $onlyVisibleTeam);";
 
-        $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
+        $stmt = $pdo->prepare("INSERT INTO posts(user_id, title, caption, time, latitude, longitude, user_team, only_visible_team) values (?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)");
 
-        if($result){
+        // execute returns true on success
+        if($stmt->execute([$username, $title, $caption, $latitude, $longitude, $team, $onlyVisibleTeam])) {
             $response["success"] = 1;
             $response["message"] = "Successfully made new post.";
-            $response["post_id"] = mysqli_insert_id($connect);
+            $response["post_id"] = $pdo->lastInsertId();
      
             // echoing JSON response
             echo json_encode($response);
-        }else{
+        } else {
             $response["success"] = 0;
             $response["message"] = "Something went wrong.";
      
             // echoing JSON response
             echo json_encode($response);
         }
-        
-        mysqli_close($connect);
+
     } else {
         $response["success"] = 0;
         $response["message"] = "Required field is missing.";
@@ -53,35 +65,6 @@ function newPost() {
     }
 }
 
-function checkLogin() {
-    global $connect;
 
-    $username = $_POST["username"];
-    $password = $_POST["password"];
-
-    $query = "SELECT password FROM users WHERE username='$username' LIMIT 1;";
-
-    $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
-    //mysqli_close($connect);
-
-    if (mysqli_num_rows($result) > 0) {
-        $response = mysqli_fetch_assoc($result);
-        if (password_verify($password, $response["password"])) {
-            //$response["success"] = 1;
-            //$response["message"] = "Success!";
-            newPost();
-        } else {
-            $response["success"] = 0;
-            $response["message"] = "Incorrect password!";
-            echo json_encode($response);
-        }
-        
-    } else {
-        $response = mysqli_fetch_assoc($result);
-        $response["success"] = 0;
-        $response["message"] = "User not found!";
-        echo json_encode($response);
-    }
-}
 
 ?>

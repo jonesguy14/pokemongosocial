@@ -9,9 +9,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
  
 
 function newUser() {
-    global $connect;
+    global $pdo;
 
-    if(isset($_POST["username"])){
+    if (isset($_POST["username"]) && isset($_POST["password"]) && isset($_POST["team"]) && isset($_POST["profile_image_path"])) {
 
         $username = $_POST["username"];
         $password = $_POST["password"];
@@ -20,19 +20,25 @@ function newUser() {
 
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
         
-        $query = "INSERT INTO users values ('$username', '$passwordHash', '$profile_image_path', '$team', CURRENT_TIMESTAMP, 0);";
+        try {
+            $stmt = $pdo->prepare("INSERT INTO users values (?, ?, ?, ?, CURRENT_TIMESTAMP, 0)");
         
-        $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
-        
-        if($result){
-            $response["success"] = 1;
-            $response["message"] = "Successfully made new user.";
-     
-            // echoing JSON response
-            echo json_encode($response);
-        } else {
+            if ($stmt->execute([$username, $passwordHash, $profile_image_path, $team])) {
+                $response["success"] = 1;
+                $response["message"] = "Successfully made new user.";
+         
+                // echoing JSON response
+                echo json_encode($response);
+            } else {
+                $response["success"] = 0;
+                $response["message"] = "Something went wrong.";
+         
+                // echoing JSON response
+                echo json_encode($response);
+            }
+        } catch (PDOException $e) {
             $response["success"] = 0;
-            $response["message"] = "Something went wrong.";
+            $response["message"] = "Username already exists!";
      
             // echoing JSON response
             echo json_encode($response);

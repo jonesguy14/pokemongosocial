@@ -6,24 +6,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 function getNumLikes() {
-    global $connect;
+    global $pdo;
 
     $post_id = $_POST["post_id"];
-    $username = $_POST["username"];
 
-    //$query = "SELECT action_id as num_rows from actions where post_id='$post_id' and action_type='THUMB';";
-    $query = "SELECT likes from posts where post_id='$post_id';";
-    $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
+    $stmt = $pdo->prepare("SELECT likes from posts where post_id=?");
+    $stmt->execute([$post_id]);
+
+    $result = $stmt->fetch();
 
     if ($result) {
-        $response = mysqli_fetch_assoc($result);
+        $response = $result;
         $response["success"] = 1;
         $response["message"] = "Success!";
         echo json_encode($response);
     } else {
-        $response["num_rows"] = 0;
         $response["success"] = 0;
-        $response["message"] = "No likes!";
+        $response["message"] = "Post not found!";
         echo json_encode($response);
     }
 

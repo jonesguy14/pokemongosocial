@@ -29,12 +29,13 @@
                     android:id="@+id/textViewUsername"
                     android:textColor="#000"
                     android:text="username"
+                    android:paddingEnd="5dp"
                     />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/textViewUsername"
+                    android:layout_toEndOf="@+id/textViewUsername"
                     android:id="@+id/textViewTeam"
                     android:text="X Team"
                     />
@@ -42,9 +43,27 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/textViewUsername"
                     android:id="@+id/textViewPostTime"
                     android:text="Posted 20 minutes ago"
+                    />
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:padding="5dp"
+                    android:id="@+id/imageViewPublicOrTeam" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toStartOf="@+id/imageViewPublicOrTeam"
+                    android:layout_centerVertical="true"
+                    android:id="@+id/textViewPublicOrTeam"
+                    android:text="Public"
                     />
 
             </RelativeLayout>
@@ -71,21 +90,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/textViewPostPlace"
-                android:id="@+id/linearLayoutCaptionButton">
+                android:id="@+id/linearLayoutCaptionButton"
+                android:paddingBottom="10dp">
 
                 <TextView
                     android:layout_width="0dip"
-                    android:layout_weight="4"
+                    android:layout_weight="5"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:id="@+id/textViewPostCaption"
                     android:text="post caption goes here lol yea this is working great it doesn't intersect with the right side"
                     />
 
-                <Button
+                <TextView
                     android:layout_width="0dip"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
                     android:id="@+id/viewNumLikes"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:text="+200"
@@ -115,7 +136,7 @@
                     android:layout_height="50dp"
                     android:src="@drawable/ic_thumb_up_black_24dp"
                     android:background="@drawable/like_button"
-                    android:id="@+id/buttonThumbDown"
+                    android:id="@+id/buttonThumbUp"
                     android:adjustViewBounds="true"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
@@ -129,7 +150,7 @@
                     android:layout_height="50dp"
                     android:src="@drawable/ic_thumb_down_black_24dp"
                     android:background="@drawable/like_button"
-                    android:id="@+id/buttonThumbUp"
+                    android:id="@+id/buttonThumbDown"
                     android:adjustViewBounds="true"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"

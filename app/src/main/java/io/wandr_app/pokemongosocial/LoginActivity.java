@@ -36,13 +36,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LoginActivity extends AppCompatActivity {
-
-    private String encoded_string, image_name;
-    private Bitmap bitmap;
-    private File file;
-    private Uri file_uri;
 
     private Button newUserButton;
     private Button loginButton;
@@ -53,21 +50,16 @@ public class LoginActivity extends AppCompatActivity {
     String newPassword;
     String newTeam;
 
+    private static final String USERNAME_PATTERN = "^[a-zA-Z0-9_-]{3,15}$";
+    private Pattern pattern;
+    private Matcher matcher;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
 
         usernameEditText = (EditText) findViewById(R.id.editTextUsername);
         passwordEditText = (EditText) findViewById(R.id.editTextPassword);
@@ -89,6 +81,8 @@ public class LoginActivity extends AppCompatActivity {
                 makeRequestLogin(username, password);
             }
         });
+
+        pattern = Pattern.compile(USERNAME_PATTERN);
     }
 
     @Override
@@ -115,7 +109,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void makeRequestLogin(final String username, final String password) {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
-        StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/login.php",
+        StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/login.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -163,6 +157,7 @@ public class LoginActivity extends AppCompatActivity {
 
         final EditText userNameEditText = (EditText) dialog.findViewById(R.id.editTextUsername);
         final EditText passwordEditText = (EditText) dialog.findViewById(R.id.editTextPassword);
+        final EditText passwordConfirmEditText = (EditText) dialog.findViewById(R.id.editTextConfirmPassword);
 
         Button doneButton = (Button) dialog.findViewById(R.id.buttonDone);
 
@@ -178,13 +173,25 @@ public class LoginActivity extends AppCompatActivity {
                 newUsername = userNameEditText.getText().toString();
                 newPassword = passwordEditText.getText().toString();
                 newTeam = teamSpinner.getSelectedItem().toString();
-                makeRequestNewUser();
-                dialog.dismiss();
+                String confirmPassword = passwordConfirmEditText.getText().toString();
+                if (newPassword.equals(confirmPassword)) {
+                    if (isValidName(newUsername)) {
+                        makeRequestNewUser(dialog);
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Invalid username! Only letters, numbers, dashes and underscores are allowed.",
+                                Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(LoginActivity.this, "Passwords don't match!",
+                            Toast.LENGTH_SHORT).show();
+                    passwordEditText.setText("");
+                    passwordConfirmEditText.setText("");
+                }
             }
         });
     }
 
-    private void makeRequestNewUser() {
+    private void makeRequestNewUser(final AlertDialog dialog) {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/new_user.php",
                 new Response.Listener<String>() {
@@ -197,6 +204,7 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, responseJSON.getString("message"),
                                     Toast.LENGTH_SHORT).show();
                             if (responseJSON.getInt("success") == 1) {
+                                dialog.dismiss();
                                 // Start Maps Activity with that new user
                                 Intent myIntent = new Intent(LoginActivity.this, MapsActivity.class);
                                 myIntent.putExtra("username", newUsername);
@@ -228,5 +236,16 @@ public class LoginActivity extends AppCompatActivity {
             }
         };
         requestQueue.add(request);
+    }
+
+    /**
+     * Checks for valid username using regex
+     * Allowed are letters, numbers, dashes and underscores.
+     * @param name the desired username
+     * @return true if valid, false if not
+     */
+    boolean isValidName(String name) {
+        matcher = pattern.matcher(name);
+        return matcher.matches();
     }
 }
