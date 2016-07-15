@@ -6,19 +6,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.location.LocationListener;
+import android.graphics.Color;
 import android.location.LocationManager;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -54,11 +47,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -405,8 +395,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         final TextView usernameTextView = (TextView) dialog.findViewById(R.id.textViewUsername);
         final TextView teamTextView = (TextView) dialog.findViewById(R.id.textViewTeam);
         final TextView postTimeTextView = (TextView) dialog.findViewById(R.id.textViewPostTime);
+        final TextView publicOrTeamTextView = (TextView) dialog.findViewById(R.id.textViewPublicOrTeam);
 
         final ImageView postImageView = (ImageView) dialog.findViewById(R.id.imageViewPost);
+        final ImageView publicOrTeamImageView = (ImageView) dialog.findViewById(R.id.imageViewPublicOrTeam);
 
         final TextView postPlaceTextView = (TextView) dialog.findViewById(R.id.textViewPostPlace);
         final TextView postCaptionTextView = (TextView) dialog.findViewById(R.id.textViewPostCaption);
@@ -423,6 +415,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             postTimeTextView.setText("Just now");
         }
+
+        if (post.onlyVisibleTeam) {
+            publicOrTeamImageView.setImageResource(R.drawable.ic_lock_black_24dp);
+            publicOrTeamTextView.setText("Team Only");
+        } else {
+            publicOrTeamImageView.setImageResource(R.drawable.ic_public_black_24dp);
+            publicOrTeamTextView.setText("Public");
+        }
+        publicOrTeamImageView.setColorFilter(Color.GRAY);
 
 
         //postImageView.setImageUrl(IMAGE_URL_BASE + post.getImageURL(), mImageLoader);

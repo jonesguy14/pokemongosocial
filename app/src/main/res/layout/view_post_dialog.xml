@@ -29,12 +29,13 @@
                     android:id="@+id/textViewUsername"
                     android:textColor="#000"
                     android:text="username"
+                    android:paddingEnd="5dp"
                     />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/textViewUsername"
+                    android:layout_toEndOf="@+id/textViewUsername"
                     android:id="@+id/textViewTeam"
                     android:text="X Team"
                     />
@@ -42,9 +43,27 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/textViewUsername"
                     android:id="@+id/textViewPostTime"
                     android:text="Posted 20 minutes ago"
+                    />
+
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:padding="5dp"
+                    android:id="@+id/imageViewPublicOrTeam" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toStartOf="@+id/imageViewPublicOrTeam"
+                    android:layout_centerVertical="true"
+                    android:id="@+id/textViewPublicOrTeam"
+                    android:text="Public"
                     />
 
             </RelativeLayout>
@@ -71,7 +90,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/textViewPostPlace"
-                android:id="@+id/linearLayoutCaptionButton">
+                android:id="@+id/linearLayoutCaptionButton"
+                android:paddingBottom="10dp">
 
                 <TextView
                     android:layout_width="0dip"
