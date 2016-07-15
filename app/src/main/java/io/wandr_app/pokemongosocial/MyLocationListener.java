@@ -9,9 +9,6 @@ import android.os.Bundle;
  * Created by Achi Jones on 7/11/2016.
  */
 public class MyLocationListener implements LocationListener {
-
-    private double latitude;
-    private double longitude;
     private Location currLocation;
     private MapsActivity mapsAct;
 
@@ -26,10 +23,8 @@ public class MyLocationListener implements LocationListener {
 
     @Override
     public void onLocationChanged(Location loc) {
-        longitude = loc.getLongitude();
-        latitude = loc.getLatitude();
-        System.out.println("New lat/long: " + latitude + ", " + longitude);
         currLocation = loc;
+        System.out.println("New lat/long: " + loc.getLatitude() + ", " + loc.getLongitude());
         mapsAct.makeRequestGetNearbyPosts();
     }
 
