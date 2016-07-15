@@ -80,7 +80,7 @@
         android:layout_below="@+id/linearLayoutTeam"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="30dp"
-        android:background="@drawable/button_shape_fc"
+        android:background="@drawable/button_shape"
         android:textColor="#FFF"/>
 
 

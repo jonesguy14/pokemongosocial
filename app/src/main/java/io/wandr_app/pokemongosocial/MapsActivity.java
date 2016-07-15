@@ -133,8 +133,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View view) {
                 showNewPostDialog();
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                //       .setAction("Action", null).show();
             }
         });
 
@@ -223,8 +221,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
+     * This is where we can add markers or lines, add listeners or move the camera.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
@@ -414,7 +411,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         final TextView postPlaceTextView = (TextView) dialog.findViewById(R.id.textViewPostPlace);
         final TextView postCaptionTextView = (TextView) dialog.findViewById(R.id.textViewPostCaption);
 
-        final Button numLikesButton = (Button) dialog.findViewById(R.id.buttonNumLikes);
+        final TextView numLikes = (TextView) dialog.findViewById(R.id.viewNumLikes);
         final ImageButton thumbUpButton = (ImageButton) dialog.findViewById(R.id.buttonThumbUp);
         final ImageButton thumbDownButton = (ImageButton) dialog.findViewById(R.id.buttonThumbDown);
         final Button commentButton = (Button) dialog.findViewById(R.id.buttonComment);
@@ -450,7 +447,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         postPlaceTextView.setText(post.title);
         postCaptionTextView.setText(post.caption);
 
-        numLikesButton.setText(post.likes + " likes");
+        numLikes.setText(getNumLikesString(post.likes));
 
         final ListView commentsListView = (ListView) dialog.findViewById(R.id.listViewComments);
         PokeGoComment[] comments = new PokeGoComment[1];
@@ -470,7 +467,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 post.hasLiked = true;
                 thumbUpButton.setEnabled(false);
                 thumbDownButton.setEnabled(false);
-                numLikesButton.setText(post.likes + " likes");
+                numLikes.setText(getNumLikesString(post.likes));
             }
         });
 
@@ -482,7 +479,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 post.hasLiked = true;
                 thumbUpButton.setEnabled(false);
                 thumbDownButton.setEnabled(false);
-                numLikesButton.setText(post.likes + " likes");
+                numLikes.setText(getNumLikesString(post.likes));
             }
         });
 
@@ -512,8 +509,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         // Make sure it shows the correct number of likes in case that changed since log in
-        makeRequestNumLikes(post.post_id, numLikesButton);
+        makeRequestNumLikes(post.post_id, numLikes);
 
+    }
+
+    private String getNumLikesString(int numLikes) {
+        return numLikes > 0 ? "+ " + numLikes : String.valueOf(numLikes);
     }
 
     public void showNewPostDialog() {
@@ -601,7 +602,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         requestQueue.add(request);
     }
 
-    private void makeRequestNumLikes(final int post_id, final Button numLikesButton) {
+    private void makeRequestNumLikes(final int post_id, final TextView numLikesText) {
         RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
         StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/get_num_likes.php",
                 new Response.Listener<String>() {
@@ -614,7 +615,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             Toast.makeText(MapsActivity.this, responseJSON.getString("message"),
                                     Toast.LENGTH_SHORT).show();
 
-                            numLikesButton.setText(responseJSON.getInt("likes") + " likes");
+                            numLikesText.setText(getNumLikesString(responseJSON.getInt("likes")));
 
                             for (PokeGoPost post : postHashMap.values()) {
                                 if (post.post_id == post_id) {
