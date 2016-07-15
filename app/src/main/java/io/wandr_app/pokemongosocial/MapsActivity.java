@@ -1,17 +1,19 @@
 package io.wandr_app.pokemongosocial;
 
+import android.Manifest;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.location.LocationManager;
-import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -35,7 +37,6 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -52,10 +53,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+    private static final int PERMISSION_ACCESS_FINE_LOCATION = 10;
 
     private GoogleMap mMap;
     private MyLocationListener locationListener;
-    private LocationManager locationManager;
 
     private ImageLoader mImageLoader;
     private NetworkImageView mNetworkImageViewProfilePic;
@@ -72,12 +73,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private String profileImagePath;
 
     private double currRange = 1;
-
-    private String newPostCaption;
-    private String newPostTitle;
-    private double newPostLatitude;
-    private double newPostLongitude;
-    private boolean newPostOnlyVisibleTeam;
 
     public static final String IMAGE_URL_BASE = "http://wandr-app.io/pokemon/images/";
 
@@ -96,7 +91,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         Bundle extras = getIntent().getExtras();
-        if(extras != null) {
+        if (extras != null) {
             username = extras.getString("username");
             password = extras.getString("password");
         } else {
@@ -131,35 +126,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         makeRequestGetUserInfo(username);
 
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (isGPSEnabled()) {
-            locationListener = new MyLocationListener(this);
-            try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
-                //makeRequestGetNearbyPosts();
-            } catch (SecurityException e) {
-                Toast.makeText(MapsActivity.this, "Security Exception! Enable GPS!",
-                        Toast.LENGTH_SHORT).show();
-            }
+        locationListener = new MyLocationListener(this);
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_ACCESS_FINE_LOCATION);
         } else {
-            Toast.makeText(MapsActivity.this, "Enable your GPS!",
-                    Toast.LENGTH_SHORT).show();
+            ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
         }
     }
 
-    private boolean isGPSEnabled() {
-        ContentResolver contentResolver = getBaseContext()
-                .getContentResolver();
-        boolean gpsStatus = Settings.Secure
-                .isLocationProviderEnabled(contentResolver,
-                        LocationManager.GPS_PROVIDER);
-
-        return gpsStatus;
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_ACCESS_FINE_LOCATION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        ((LocationManager) getSystemService(Context.LOCATION_SERVICE)).requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
+                    }
+                }
+            }
+        }
     }
 
     /**
      * Gets the current user's info, changing the text fields to the correct text.
      * Also changes the profile pic thumbnail
+     *
      * @param user user to examine
      */
     private void makeRequestGetUserInfo(final String user) {
@@ -199,7 +191,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                HashMap<String,String> map = new HashMap<>();
+                HashMap<String, String> map = new HashMap<>();
                 map.put("username", user);
                 return map;
             }
@@ -283,6 +275,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     /**
      * Gets the current user's info, changing the text fields to the correct text.
      * Also changes the profile pic thumbnail
+     *
      * @param user user to examine
      */
     private void makeRequestGetAllPostsFromUser(final String user) {
@@ -316,7 +309,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                HashMap<String,String> map = new HashMap<>();
+                HashMap<String, String> map = new HashMap<>();
                 map.put("username", user);
                 return map;
             }
@@ -324,11 +317,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         requestQueue.add(request);
     }
 
+    private boolean isCurrentLocationAvailable() {
+        if (locationListener.getCurrLocation() != null) {
+            return true;
+        } else {
+            Toast.makeText(this, "Could not retrieve your location!",
+                    Toast.LENGTH_SHORT).show();
+            return false;
+        }
+    }
+
     /**
      * Gets the current user's info, changing the text fields to the correct text.
      * Also changes the profile pic thumbnail
      */
     public void makeRequestGetNearbyPosts() {
+        if (!isCurrentLocationAvailable()) {
+            return;
+        }
         RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
         StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/get_nearby_posts.php",
                 new Response.Listener<String>() {
@@ -359,7 +365,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                HashMap<String,String> map = new HashMap<>();
+                HashMap<String, String> map = new HashMap<>();
                 map.put("latitude", "" + locationListener.getCurrLocation().getLatitude());
                 map.put("longitude", "" + locationListener.getCurrLocation().getLongitude());
                 map.put("range", "" + currRange);
@@ -369,16 +375,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         };
         requestQueue.add(request);
 
-        // Add marker for current location
         LatLng postCoord = new LatLng(locationListener.getCurrLocation().getLatitude(),
                 locationListener.getCurrLocation().getLongitude());
         if (currLocationMarker != null) currLocationMarker.remove();
         currLocationMarker = mMap.addMarker(
                 new MarkerOptions()
-                    .position(postCoord)
-                    .title("You Are Here")
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(postCoord, 15));
+                        .position(postCoord)
+                        .title("You Are Here")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
     }
 
     public void showViewPostDialog(final PokeGoPost post) {
@@ -540,20 +544,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         postButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Perform action on click
-                newPostTitle = pokemonSpinner.getSelectedItem().toString();
-                System.out.println("Selected Item: " + pokemonSpinner.getSelectedItem().toString());
-                newPostCaption = captionEditText.getText().toString();
-                newPostLatitude = locationListener.getCurrLocation().getLatitude();//51.6 - Math.random()*0.2;
-                newPostLongitude = locationListener.getCurrLocation().getLongitude();//0.15 - Math.random()*0.1;
-                newPostOnlyVisibleTeam = onlyVisibleTeamCheckBox.isChecked();
-                makeRequestNewPost();
-                dialog.dismiss();
+                if (isCurrentLocationAvailable()) {
+                    String newPostTitle = pokemonSpinner.getSelectedItem().toString();
+                    System.out.println("Selected Item: " + pokemonSpinner.getSelectedItem().toString());
+                    String newPostCaption = captionEditText.getText().toString();
+                    double newPostLatitude = locationListener.getCurrLocation().getLatitude();
+                    double newPostLongitude = locationListener.getCurrLocation().getLongitude();
+                    boolean newPostOnlyVisibleTeam = onlyVisibleTeamCheckBox.isChecked();
+                    makeRequestNewPost(newPostTitle, newPostCaption, newPostLatitude, newPostLongitude, newPostOnlyVisibleTeam);
+                    dialog.dismiss();
+                }
             }
         });
     }
 
-    private void makeRequestNewPost() {
+    private void makeRequestNewPost(final String title, final String caption, final double latitude, final double longitude, final boolean onlyVisibleTeam) {
         RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
         StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/new_post.php",
                 new Response.Listener<String>() {
@@ -567,8 +572,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     Toast.LENGTH_SHORT).show();
 
                             // Create a PokeGoPost object and add it to the map
-                            PokeGoPost newPost = new PokeGoPost(responseJSON.getInt("post_id"), username, team, newPostTitle, newPostCaption,
-                                    System.currentTimeMillis(), newPostLatitude, newPostLongitude, newPostOnlyVisibleTeam);
+                            PokeGoPost newPost = new PokeGoPost(responseJSON.getInt("post_id"), username, team, title, caption,
+                                    System.currentTimeMillis(), latitude, longitude, onlyVisibleTeam);
                             newPost.hasLiked = true;
                             loadedPosts.add(newPost);
                             addPostMarkers();
@@ -588,15 +593,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                HashMap<String,String> map = new HashMap<>();
+                HashMap<String, String> map = new HashMap<>();
                 map.put("username", username);
                 map.put("password", password);
-                map.put("title", newPostTitle);
+                map.put("title", title);
                 map.put("team", team);
-                map.put("caption", newPostCaption);
-                map.put("latitude", "" + newPostLatitude);
-                map.put("longitude", "" + newPostLongitude);
-                map.put("only_visible_team", "" + (newPostOnlyVisibleTeam ? 1 : 0));
+                map.put("caption", caption);
+                map.put("latitude", "" + latitude);
+                map.put("longitude", "" + longitude);
+                map.put("only_visible_team", "" + (onlyVisibleTeam ? 1 : 0));
                 return map;
             }
         };
@@ -640,7 +645,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                HashMap<String,String> map = new HashMap<>();
+                HashMap<String, String> map = new HashMap<>();
                 map.put("post_id", "" + post_id);
                 map.put("username", username);
                 return map;
@@ -682,7 +687,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                HashMap<String,String> map = new HashMap<>();
+                HashMap<String, String> map = new HashMap<>();
                 map.put("post_id", "" + post_id);
                 map.put("username", username);
                 map.put("password", password);
@@ -722,7 +727,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                HashMap<String,String> map = new HashMap<>();
+                HashMap<String, String> map = new HashMap<>();
                 map.put("post_id", "" + post_id);
                 map.put("post_user_id", post_user_id);
                 map.put("username", username);
