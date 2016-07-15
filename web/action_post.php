@@ -2,62 +2,51 @@
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     require 'connection.php';
-    checkLogin();
+    
+    if (isset($_POST["username"]) && isset($_POST["password"])) {
+        $loginCheck = checkLogin($_POST["username"], $_POST["password"]);
+        if ($loginCheck["success"] === 1) {
+            // Successful login
+            actionPost();
+        } else {
+            echo json_encode($loginCheck);
+        }
+    } else {
+        $response["success"] = 0;
+        $response["message"] = "Verification failed, username and password needed.";
+        echo json_encode($response);
+    }
 }
 
 function actionPost() {
-    global $connect;
+    global $pdo;
 
-    $post_id = $_POST["post_id"];
-    $user_id = $_POST["username"];
-    $content = $_POST["content"];
+    if( isset($_POST["post_id"]) && 
+        isset($_POST["content"]) ) {
 
-    $query = "INSERT INTO actions(user_id, post_id, content, time) VALUES ('$user_id', '$post_id', '$content', CURRENT_TIMESTAMP);";
-    $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
+        $post_id = $_POST["post_id"];
+        $user_id = $_POST["username"];
+        $content = $_POST["content"];
 
-    mysqli_close($connect);
+        $stmt = $pdo->prepare("INSERT INTO actions(user_id, post_id, content, time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)");
 
-    if ($result) {
-        $response["success"] = 1;
-        $response["message"] = "Success!";
-        echo json_encode($response);
-    } else {
-        $response["success"] = 0;
-        $response["message"] = "Error inserting new comment!";
-        echo json_encode($response);
-    }
-
-}
-
-function checkLogin() {
-    global $connect;
-
-    $username = $_POST["username"];
-    $password = $_POST["password"];
-
-    $query = "SELECT password FROM users WHERE username='$username' LIMIT 1;";
-
-    $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
-    //mysqli_close($connect);
-
-    if (mysqli_num_rows($result) > 0) {
-        $response = mysqli_fetch_assoc($result);
-        if (password_verify($password, $response["password"])) {
-            //$response["success"] = 1;
-            //$response["message"] = "Success!";
-            actionPost();
+        // execute returns true on success
+        if ($stmt->execute([$user_id, $post_id, $content])) {
+            $response["success"] = 1;
+            $response["message"] = "Success!";
+            echo json_encode($response);
         } else {
             $response["success"] = 0;
-            $response["message"] = "Incorrect password!";
+            $response["message"] = "Error inserting new comment!";
             echo json_encode($response);
         }
-        
+
     } else {
-        $response = mysqli_fetch_assoc($result);
         $response["success"] = 0;
-        $response["message"] = "User not found!";
+        $response["message"] = "Required field is missing.";
         echo json_encode($response);
     }
+
 }
 
 ?>

@@ -6,34 +6,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 function getNearbyPosts() {
-    global $connect;
+    global $pdo;
 
-    if (isset($_POST["latitude"]) && isset($_POST["longitude"])) {
+    if (isset($_POST["latitude"]) && isset($_POST["longitude"]) && isset($_POST["range"]) && isset($_POST["team"])) {
         
         $latitude = $_POST["latitude"];
         $longitude = $_POST["longitude"];
         $range = $_POST["range"];
         $team = $_POST["team"];
 
-        $query = "SELECT post_id, user_id, title, caption, TIMESTAMPDIFF(minute, time, CURRENT_TIMESTAMP) as time, latitude, longitude, likes, user_team, only_visible_team
+        $latTopRange = $latitude + $range;
+        $latBotRange = $latitude - $range;
+        $lonTopRange = $longitude + $range;
+        $lonBotRange = $longitude - $range;
+
+        $stmt = $pdo->prepare("SELECT post_id, user_id, title, caption, TIMESTAMPDIFF(minute, time, CURRENT_TIMESTAMP) as time, latitude, longitude, likes, user_team, only_visible_team
             FROM posts WHERE 
-            latitude < ($latitude + $range) AND 
-            latitude > ($latitude - $range) AND 
-            longitude < ($longitude + $range) AND 
-            longitude > ($longitude - $range) AND 
-            (only_visible_team = 0 OR user_team = '$team');";
+            latitude < ? AND latitude > ? AND 
+            longitude < ? AND longitude > ? AND 
+            (only_visible_team = 0 OR user_team = ?)");
+        $stmt->execute([$latTopRange, $latBotRange, $lonTopRange, $lonBotRange, $team]);
 
-        $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
-        mysqli_close($connect);
+        $result = $stmt->fetchAll();       
 
-        $numRows = mysqli_num_rows($result);
-        if ($numRows > 0) {
+        if ($result) {
             // echoing JSON response
-            $response = array();
-            while($r = mysqli_fetch_assoc($result)) {
-                $response[] = $r;
-            }
-            $response["num_rows"] = $numRows;
+            $response = $result;
+            $response["num_rows"] = $stmt->rowCount();
             $response["success"] = 1;
             $response["message"] = "Got all posts as a JSON.";
             echo json_encode($response);
@@ -53,7 +52,7 @@ function getNearbyPosts() {
      
         // echoing JSON response
         echo json_encode($response);
-    }   
+    }
     
 }
 

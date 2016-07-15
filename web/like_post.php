@@ -2,88 +2,68 @@
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     require 'connection.php';
-    checkLogin();
+    
+    if (isset($_POST["username"]) && isset($_POST["password"])) {
+        $loginCheck = checkLogin($_POST["username"], $_POST["password"]);
+        if ($loginCheck["success"] === 1) {
+            // Successful login
+            likePost();
+        } else {
+            echo json_encode($loginCheck);
+        }
+    } else {
+        $response["success"] = 0;
+        $response["message"] = "Verification failed, username and password needed.";
+        echo json_encode($response);
+    }
 }
 
 function likePost() {
-    global $connect;
+    global $pdo;
 
-    $post_id = $_POST["post_id"];
-    $post_user_id = $_POST["post_user_id"];
-    $isUpDown = $_POST["isUpDown"];
+    if (isset($_POST["post_id"]) && isset($_POST["post_user_id"]) && isset($_POST["isUpDown"])) {
 
-    if ($isUpDown === "UP") {
-        // Give a +1 to the post
-        $query = "UPDATE posts SET likes=likes+1 WHERE post_id='$post_id';";
-        $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
+        $post_id = $_POST["post_id"];
+        $post_user_id = $_POST["post_user_id"];
+        $isUpDown = $_POST["isUpDown"];
 
-        if ($result) {
-            // Give a +1 to the user who made the post
-            $query = "UPDATE users SET reputation=reputation+1 WHERE username='$post_user_id';";
-            $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
+        if ($isUpDown === "UP") {
+            $change = 1;
+        } else {
+            $change = -1;
+        }
 
-            $response["success"] = 1;
-            $response["message"] = "Success!";
-            echo json_encode($response);
+        $stmt = $pdo->prepare("UPDATE posts SET likes=likes+(?) WHERE post_id=?");
+
+        // execute returns true on success
+        if ($stmt->execute([$change, $post_id])) {
+
+            // Give rep to the user who made the post
+            $stmt = $pdo->prepare("UPDATE users SET reputation=reputation+(?) WHERE username=?");
+
+            // execute returns true on success
+            if ($stmt->execute([$change, $post_user_id])) {
+                $response["success"] = 1;
+                $response["message"] = "Success!";
+                echo json_encode($response);
+            } else {
+                $response["success"] = 0;
+                $response["message"] = "Error changing reputation!";
+                echo json_encode($response);
+            }
+            
         } else {
             $response["success"] = 0;
-            $response["message"] = "Error thumbing up!";
+            $response["message"] = "Error thumbing up/down!";
             echo json_encode($response);
         }
 
-    }
-    else if ($isUpDown === "DOWN") {
-        // Give a -1 to the post
-        $query = "UPDATE posts SET likes=likes-1 WHERE post_id='$post_id';";
-        $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
-
-        if ($result) {
-            // Give a -1 to the user who made the post
-            $query = "UPDATE users SET reputation=reputation-1 WHERE username='$post_user_id';";
-            $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
-
-            $response["success"] = 1;
-            $response["message"] = "Success!";
-            echo json_encode($response);
-        } else {
-            $response["success"] = 0;
-            $response["message"] = "Error thumbing down!";
-            echo json_encode($response);
-        }
-    }
-
-    mysqli_close($connect);
-}
-
-function checkLogin() {
-    global $connect;
-
-    $username = $_POST["username"];
-    $password = $_POST["password"];
-
-    $query = "SELECT password FROM users WHERE username='$username' LIMIT 1;";
-
-    $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
-    //mysqli_close($connect);
-
-    if (mysqli_num_rows($result) > 0) {
-        $response = mysqli_fetch_assoc($result);
-        if (password_verify($password, $response["password"])) {
-            //$response["success"] = 1;
-            //$response["message"] = "Success!";
-            likePost();
-        } else {
-            $response["success"] = 0;
-            $response["message"] = "Incorrect password!";
-            echo json_encode($response);
-        }
-        
     } else {
-        $response = mysqli_fetch_assoc($result);
         $response["success"] = 0;
-        $response["message"] = "User not found!";
+        $response["message"] = "Required field is missing.";
         echo json_encode($response);
     }
+
 }
 
 ?>

@@ -6,19 +6,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 function userLogin() {
-    global $connect;
+    global $pdo;
 
     $username = $_POST["username"];
     $password = $_POST["password"];
 
-    $query = "SELECT password FROM users WHERE username='$username' LIMIT 1;";
+    // Prepare statements
+    $stmt = $pdo->prepare("SELECT password FROM users WHERE username=? LIMIT 1");
+    $stmt->execute([$username]);
 
-    $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
-    mysqli_close($connect);
+    $result = $stmt->fetch();
 
-    if (mysqli_num_rows($result) > 0) {
-        $response = mysqli_fetch_assoc($result);
-        if (password_verify($password, $response["password"])) {
+    if ($result) {
+        if (password_verify($password, $result["password"])) {
             $response["success"] = 1;
             $response["message"] = "Success!";
             echo json_encode($response);
@@ -29,7 +29,6 @@ function userLogin() {
         }
         
     } else {
-        $response = mysqli_fetch_assoc($result);
         $response["success"] = 0;
         $response["message"] = "User not found!";
         echo json_encode($response);

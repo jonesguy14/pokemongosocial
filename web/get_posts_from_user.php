@@ -6,24 +6,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 function getPostsFromUser() {
-    global $connect;
+    global $pdo;
 
     if (isset($_POST["username"])) {
-        $name = $_POST["username"];
+        $username = $_POST["username"];
 
-        $query = "SELECT * from posts where user_id='$name';";
+        $stmt = $pdo->prepare("SELECT * from posts where user_id=?");
+        $stmt->execute([$username]);
 
-        $result = mysqli_query($connect, $query) or die(mysqli_error($connect));
-        mysqli_close($connect);
+        $result = $stmt->fetchAll();  
 
-        $numRows = mysqli_num_rows($result);
-        if ($numRows > 0) {
+        if ($result) {
             // echoing JSON response
-            $response = array();
-            while($r = mysqli_fetch_assoc($result)) {
-                $response[] = $r;
-            }
-            $response["num_rows"] = $numRows;
+            $response = $result;
+            $response["num_rows"] = $stmt->rowCount();
             $response["success"] = 1;
             $response["message"] = "Got all posts as a JSON.";
             echo json_encode($response);
