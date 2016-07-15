@@ -75,17 +75,18 @@
 
                 <TextView
                     android:layout_width="0dip"
-                    android:layout_weight="4"
+                    android:layout_weight="5"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:id="@+id/textViewPostCaption"
                     android:text="post caption goes here lol yea this is working great it doesn't intersect with the right side"
                     />
 
-                <Button
+                <TextView
                     android:layout_width="0dip"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
                     android:id="@+id/viewNumLikes"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:text="+200"
@@ -115,7 +116,7 @@
                     android:layout_height="50dp"
                     android:src="@drawable/ic_thumb_up_black_24dp"
                     android:background="@drawable/like_button"
-                    android:id="@+id/buttonThumbDown"
+                    android:id="@+id/buttonThumbUp"
                     android:adjustViewBounds="true"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
@@ -129,7 +130,7 @@
                     android:layout_height="50dp"
                     android:src="@drawable/ic_thumb_down_black_24dp"
                     android:background="@drawable/like_button"
-                    android:id="@+id/buttonThumbUp"
+                    android:id="@+id/buttonThumbDown"
                     android:adjustViewBounds="true"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"

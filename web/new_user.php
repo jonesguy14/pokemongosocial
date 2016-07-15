@@ -38,7 +38,7 @@ function newUser() {
             }
         } catch (PDOException $e) {
             $response["success"] = 0;
-            $response["message"] = "Something went wrong.";
+            $response["message"] = "Username already exists!";
      
             // echoing JSON response
             echo json_encode($response);
