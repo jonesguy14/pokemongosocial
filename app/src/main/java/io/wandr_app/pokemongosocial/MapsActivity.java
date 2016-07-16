@@ -129,7 +129,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showNewPostDialog();
+                showFabMenuDialog();
             }
         });
 
@@ -568,6 +568,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private String getNumLikesString(int numLikes) {
         return numLikes > 0 ? "+" + numLikes : String.valueOf(numLikes);
+    }
+
+    /**
+     * Show menu of options when users click the fab.
+     */
+    public void showFabMenuDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //do nothing?
+                        dialog.dismiss();
+                    }
+                })
+                .setView(getLayoutInflater().inflate(R.layout.simple_list_dialog, null));
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+
+        ListView fabMenu = (ListView) dialog.findViewById(R.id.listView);
+
+        String[] menuArr = {getString(R.string.newPost), getString(R.string.myLocation),
+                getString(R.string.changeMapRange), getString(R.string.refreshMap)};
+        final MenuListArrayAdapter menuAdapter = new MenuListArrayAdapter(MapsActivity.this, menuArr);
+        fabMenu.setAdapter(menuAdapter);
+
+        fabMenu.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                showNewPostDialog();
+                dialog.dismiss();
+            }
+        });
     }
 
     public void showNewPostDialog() {

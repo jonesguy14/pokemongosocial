@@ -164,4 +164,8 @@
     <string name="title_activity_maps2">Map</string>
     <string name="thumbsUp">Thumb Up</string>
     <string name="thumbsDown">Thumb Down</string>
+    <string name="myLocation">Go to My Location</string>
+    <string name="refreshMap">Refresh Map</string>
+    <string name="changeMapRange">Change Map Range</string>
+    <string name="newPost">New Post</string>
 </resources>
