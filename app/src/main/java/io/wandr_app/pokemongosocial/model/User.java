@@ -1,9 +1,11 @@
-package io.wandr_app.pokemongosocial;
+package io.wandr_app.pokemongosocial.model;
 
 import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import io.wandr_app.pokemongosocial.util.CommonUtils;
 
 /**
  * Created by kylel on 7/15/2016.
@@ -17,7 +19,7 @@ public final class User {
     private final TextView timeJoinedTextView;
     private final TextView reputationTextView;
 
-    public String team;
+    public Team team;
     public String profileImagePath;
 
     public User(final String username, final String password, final TextView usernameTextView,
@@ -43,13 +45,10 @@ public final class User {
         usernameTextView.setText(requestUserInfoResponse.getString("username"));
         teamTextView.setText(requestUserInfoResponse.getString("team") + " Team");
         timeJoinedTextView.setText("Joined " + requestUserInfoResponse.getString("time_joined").split(" ")[0]);
-        reputationTextView.setText("Reputation: " + getNumLikesString(requestUserInfoResponse.getInt("reputation")));
+        reputationTextView.setText("Reputation: " + CommonUtils.getNumLikesString(requestUserInfoResponse.getInt
+                ("reputation")));
 
-        team = requestUserInfoResponse.getString("team");
+        team = Team.fromString(requestUserInfoResponse.getString("team"));
         profileImagePath = requestUserInfoResponse.getString("profile_image_path");
-    }
-
-    private String getNumLikesString(int numLikes) {
-        return numLikes > 0 ? "+" + numLikes : String.valueOf(numLikes);
     }
 }

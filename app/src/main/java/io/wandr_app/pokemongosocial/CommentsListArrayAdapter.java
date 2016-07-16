@@ -1,10 +1,7 @@
 package io.wandr_app.pokemongosocial;
 
-import android.app.Activity;
 import android.content.Context;
-import android.opengl.Visibility;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,9 +21,13 @@ import com.android.volley.toolbox.StringRequest;
 
 import org.json.JSONObject;
 
-import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.wandr_app.pokemongosocial.model.PokeGoComment;
+import io.wandr_app.pokemongosocial.model.Team;
+import io.wandr_app.pokemongosocial.util.CommonUtils;
+import io.wandr_app.pokemongosocial.util.ThumbsMapWorker;
 
 /**
  * List adapter to show comments on a post.
@@ -42,9 +43,13 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
     private String username;
     private String password;
 
-    private HashMap<Integer, String> commentThumbsMap;
+    private Map<Integer, Integer> commentThumbsMap;
 
-    public CommentsListArrayAdapter(Context context, HashMap<Integer, String> commentThumbsMap, String username, String password, ListView list, PokeGoComment[] values, int post_id, boolean makeRequest) {
+    private ThumbsMapWorker worker;
+
+    public CommentsListArrayAdapter(Context context, Map<Integer, Integer> commentThumbsMap,
+                                    String username, String password, ListView list,
+                                    PokeGoComment[] values, int post_id, boolean makeRequest) {
         super(context, R.layout.comment_list_item, values);
         this.context = context;
         this.values = values;
@@ -53,6 +58,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
         this.username = username;
         this.password = password;
         this.commentThumbsMap = commentThumbsMap;
+        worker = new ThumbsMapWorker(context);
         if (makeRequest) {
             makeRequestGetComments();
         }
@@ -85,20 +91,11 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
             usernameTextView.setText(values[position].username);
             teamTextView.setText(values[position].team);
 
-            if (values[position].team.equals("Instinct")) {
-                teamTextView.setTextColor(context.getResources().getColor(R.color.Instinct));
-            } else if (values[position].team.equals("Mystic")) {
-                teamTextView.setTextColor(context.getResources().getColor(R.color.Mystic));
-            } else if (values[position].team.equals("Valor")) {
-                teamTextView.setTextColor(context.getResources().getColor(R.color.Valor));
-            }
+            CommonUtils.setTeamTextViewColor(teamTextView, context.getResources(), Team.fromString
+                    (values[position].team));
 
-            if (values[position].time >= 1) {
-                timeTextView.setText(values[position].time + " min ago");
-            } else {
-                timeTextView.setText("Just now");
-            }
-            likesTextView.setText(getNumLikesString(values[position].likes));
+            timeTextView.setText(CommonUtils.getTimeDisplayString(values[position].time));
+            likesTextView.setText(CommonUtils.getNumLikesString(values[position].likes));
 
             // Set the button to correct image if the comment was already voted on
             if (values[position].thumbs == 1) {
@@ -131,9 +128,11 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
 
                                     values[position].likes += 1 - values[position].thumbs;
                                     values[position].thumbs = 1;
-                                    likesTextView.setText(getNumLikesString(values[position].likes));
+                                    likesTextView.setText(CommonUtils.getNumLikesString
+                                            (values[position].likes));
 
-                                    recordCommentThumbs(values[position].action_id, "UP");
+                                    worker.recordCommentThumbs(values[position].action_id, "UP",
+                                            commentThumbsMap);
                                 }
                             } else if (item.getTitle().toString().equals(context.getResources().getString(R.string.thumbsDown))) {
                                 // Thumb Down
@@ -145,9 +144,11 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
 
                                     values[position].likes += -1 - values[position].thumbs;
                                     values[position].thumbs = -1;
-                                    likesTextView.setText(getNumLikesString(values[position].likes));
+                                    likesTextView.setText(CommonUtils.getNumLikesString
+                                            (values[position].likes));
 
-                                    recordCommentThumbs(values[position].action_id, "DOWN");
+                                    worker.recordCommentThumbs(values[position].action_id,
+                                            "DOWN", commentThumbsMap);
                                 }
                             }
                             return true;
@@ -177,7 +178,6 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
                     @Override
                     public void onResponse(String response) {
                         // Get the JSON Response
-                        System.out.println("Response:\n" + response);
                         try {
                             JSONObject responseJSON = new JSONObject(response);
                             Toast.makeText(context, responseJSON.getString("message"),
@@ -199,7 +199,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
                                 }
 
                                 list.setAdapter(new CommentsListArrayAdapter(context, commentThumbsMap, username, password, list, items, post_id, false));
-                                MapsActivity.setListViewHeightBasedOnChildren(list);
+                                CommonUtils.setListViewHeightBasedOnChildren(list);
                             } else {
                                 values[0].content = "No comments to display.";
                             }
@@ -220,7 +220,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
         }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                HashMap<String,String> map = new HashMap<>();
+                HashMap<String, String> map = new HashMap<>();
                 map.put("post_id", "" + post_id);
                 return map;
             }
@@ -238,7 +238,6 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
                     @Override
                     public void onResponse(String response) {
                         // Get the JSON Response
-                        System.out.println("Response:\n" + response);
                         try {
                             JSONObject responseJSON = new JSONObject(response);
                             Toast.makeText(context, responseJSON.getString("message"),
@@ -259,7 +258,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
         }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                HashMap<String,String> map = new HashMap<>();
+                HashMap<String, String> map = new HashMap<>();
                 map.put("username", username);
                 map.put("password", password);
                 map.put("action_id", "" + comment.action_id);
@@ -270,32 +269,4 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
         };
         requestQueue.add(request);
     }
-
-    /**
-     * Records if a comment has been thumbed up or down, so that repeated voting is stopped.
-     * @param action_id the comment that is liked
-     * @param upOrDown "UP" or "DOWN", based on thumb
-     */
-    private void recordCommentThumbs(int action_id, String upOrDown) {
-        if (commentThumbsMap.containsKey(action_id)) {
-            commentThumbsMap.remove(action_id);
-        }
-        commentThumbsMap.put(action_id, upOrDown);
-
-        FileOutputStream outputStream;
-        String data = action_id + " " + upOrDown + "\n";
-        try {
-            outputStream = context.openFileOutput("comments_thumbs.txt", Activity.MODE_APPEND);
-            outputStream.write(data.getBytes());
-            outputStream.close();
-        }
-        catch (Exception e) {
-            Log.e("Exception", "File write failed: " + e.toString());
-        }
-    }
-
-    private String getNumLikesString(int numLikes) {
-        return numLikes > 0 ? "+" + numLikes : String.valueOf(numLikes);
-    }
-
 }

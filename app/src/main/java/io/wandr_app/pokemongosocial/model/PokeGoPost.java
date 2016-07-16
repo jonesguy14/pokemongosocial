@@ -1,12 +1,9 @@
-package io.wandr_app.pokemongosocial;
+package io.wandr_app.pokemongosocial.model;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 
 import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Class that encapsulates all the data in a post.
@@ -18,7 +15,7 @@ public class PokeGoPost {
 
     public int post_id;
     public String user_id;
-    public String user_team;
+    public Team user_team;
     public String title;
     public String caption;
     public int time;
@@ -29,7 +26,7 @@ public class PokeGoPost {
     public boolean onlyVisibleTeam;
 
     /**
-     * This constructor is used when the current use makes a post, so it just happened.
+     * This constructor is used when the current user makes a post, so it just happened.
      * @param post_id
      * @param user_id
      * @param user_team
@@ -39,7 +36,8 @@ public class PokeGoPost {
      * @param longitude
      * @param onlyVisibleTeam
      */
-    public PokeGoPost(int post_id, String user_id, String user_team, String title, String caption, double latitude, double longitude, boolean onlyVisibleTeam) {
+    public PokeGoPost(int post_id, String user_id, Team user_team, String title, String caption,
+                      double latitude, double longitude, boolean onlyVisibleTeam) {
         this.post_id = post_id;
         this.user_id = user_id;
         this.user_team = user_team;
@@ -61,7 +59,7 @@ public class PokeGoPost {
         try {
             post_id = postJSON.getInt("post_id");
             user_id = postJSON.getString("user_id");
-            user_team = postJSON.getString("user_team");
+            user_team = Team.fromString(postJSON.getString("user_team"));
             title = postJSON.getString("title");
             caption = postJSON.getString("caption");
             time = postJSON.getInt("time");

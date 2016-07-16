@@ -1,4 +1,4 @@
-package io.wandr_app.pokemongosocial;
+package io.wandr_app.pokemongosocial.model;
 
 import android.app.AlertDialog;
 import android.content.res.Resources;
@@ -8,25 +8,28 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import io.wandr_app.pokemongosocial.R;
+import io.wandr_app.pokemongosocial.util.CommonUtils;
+
 /**
  * Created by kylel on 7/15/2016.
  */
 public class ViewPostDialog {
-    TextView usernameTextView;
-    TextView teamTextView;
-    TextView postTimeTextView;
-    TextView publicOrTeamTextView;
+    public TextView usernameTextView;
+    public TextView teamTextView;
+    public TextView postTimeTextView;
+    public TextView publicOrTeamTextView;
 
-    ImageView postImageView;
-    ImageView publicOrTeamImageView;
+    public ImageView postImageView;
+    public ImageView publicOrTeamImageView;
 
-    TextView postPlaceTextView;
-    TextView postCaptionTextView;
+    public TextView postPlaceTextView;
+    public TextView postCaptionTextView;
 
-    TextView numLikes;
-    ImageButton thumbUpButton;
-    ImageButton thumbDownButton;
-    Button commentButton;
+    public TextView numLikes;
+    public ImageButton thumbUpButton;
+    public ImageButton thumbDownButton;
+    public Button commentButton;
     public static final int layout = R.layout.view_post_dialog;
 
     // Build from a visible dialog with the correct layout, and post
@@ -52,25 +55,14 @@ public class ViewPostDialog {
     private void populateFromPost(PokeGoPost post, Resources resources) {
         usernameTextView.setText(post.user_id);
 
-        teamTextView.setText(post.user_team);
-        switch (post.user_team) {
-            case "Instinct":
-                teamTextView.setTextColor(resources.getColor(R
-                        .color.Instinct));
-                break;
-            case "Mystic":
-                teamTextView.setTextColor(resources.getColor(R.color.Mystic));
-                break;
-            case "Valor":
-                teamTextView.setTextColor(resources.getColor(R.color.Valor));
-                break;
-        }
-        postTimeTextView.setText(getTimeDisplayString(post.time));
+        teamTextView.setText(post.user_team.toString());
+        CommonUtils.setTeamTextViewColor(teamTextView, resources, post.user_team);
+        postTimeTextView.setText(CommonUtils.getTimeDisplayString(post.time));
         setPublicOrTeamView(post.onlyVisibleTeam);
         postPlaceTextView.setText(post.title);
         postCaptionTextView.setText(post.caption);
 
-        numLikes.setText(getNumLikesString(post.likes));
+        numLikes.setText(CommonUtils.getNumLikesString(post.likes));
         if (post.thumbs == 1) {
             thumbUpButton.setColorFilter(Color.GREEN);
         } else if (post.thumbs == -1) {
@@ -89,11 +81,21 @@ public class ViewPostDialog {
         publicOrTeamImageView.setColorFilter(Color.GRAY);
     }
 
-    private String getTimeDisplayString(int minutesAgo) {
-        return minutesAgo > 1 ? minutesAgo + "min ago" : "Just now";
+    public void makeThumbsNeutral(int likes) {
+        thumbDownButton.setColorFilter(null);
+        thumbUpButton.setColorFilter(null);
+        numLikes.setText(CommonUtils.getNumLikesString(likes));
     }
 
-    public static String getNumLikesString(int numLikes) {
-        return numLikes > 0 ? "+" + numLikes : String.valueOf(numLikes);
+    public void makeThumbsUp(int likes) {
+        thumbUpButton.setColorFilter(Color.GREEN);
+        thumbDownButton.setColorFilter(Color.BLACK);
+        numLikes.setText(CommonUtils.getNumLikesString(likes));
+    }
+
+    public void makeThumbsDown(int likes) {
+        thumbDownButton.setColorFilter(Color.RED);
+        thumbUpButton.setColorFilter(Color.BLACK);
+        numLikes.setText(CommonUtils.getNumLikesString(likes));
     }
 }
