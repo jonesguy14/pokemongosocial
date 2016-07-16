@@ -11,11 +11,10 @@ import io.wandr_app.pokemongosocial.R;
 import io.wandr_app.pokemongosocial.model.Team;
 
 public final class CommonUtils {
-    private CommonUtils() {
-    }
 
-    public static String getNumLikesString(int numLikes) {
-        return numLikes > 0 ? "+" + numLikes : String.valueOf(numLikes);
+    public static final String IMAGE_URL_BASE = "http://wandr-app.io/pokemon/images/";
+
+    private CommonUtils() {
     }
 
     public static void setTeamTextViewColor(TextView teamTextView, Resources resources, Team team) {
@@ -61,6 +60,18 @@ public final class CommonUtils {
     }
 
     public static String getTimeDisplayString(int minutesAgo) {
-        return minutesAgo > 1 ? minutesAgo + "min ago" : "Just now";
+        if (minutesAgo > 2880) {
+            // Use days instead
+            return minutesAgo/1440 + " days ago";
+        } else if (minutesAgo > 120) {
+            // Use hours instead
+            return minutesAgo/60 + " hours ago";
+        } else {
+            return minutesAgo > 1 ? minutesAgo + " min ago" : "Just now";
+        }
+    }
+
+    public static String getNumLikesString(int numLikes) {
+        return numLikes >= 0 ? "+" + numLikes : String.valueOf(numLikes);
     }
 }

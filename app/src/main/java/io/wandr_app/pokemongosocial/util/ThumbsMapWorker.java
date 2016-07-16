@@ -31,8 +31,7 @@ public class ThumbsMapWorker {
      * @param post_id      the post that is liked
      * @param thumbsString "UP", "DOWN", "NONE" based on thumb
      */
-    public void recordPostThumbs(int post_id, String thumbsString, Map<Integer, Integer>
-            postThumbsMap) {
+    public void recordPostThumbs(int post_id, String thumbsString, Map<Integer, Integer> postThumbsMap) {
         if (thumbsString.equals("NONE")) {
             postThumbsMap.remove(post_id);
             removePostThumbsEntry(post_id);
@@ -61,8 +60,7 @@ public class ThumbsMapWorker {
      * @param action_id    the comment that is liked
      * @param thumbsString "UP", "DOWN", "NONE based on thumb
      */
-    public void recordCommentThumbs(int action_id, String thumbsString, Map<Integer, Integer>
-            commentThumbsMap) {
+    public void recordCommentThumbs(int action_id, String thumbsString, Map<Integer, Integer> commentThumbsMap) {
         if (thumbsString.equals("NONE")) {
             commentThumbsMap.remove(action_id);
             removeCommentThumbsEntry(action_id);

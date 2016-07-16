@@ -1,4 +1,4 @@
-package io.wandr_app.pokemongosocial;
+package io.wandr_app.pokemongosocial.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import io.wandr_app.pokemongosocial.R;
 
 /**
  * List Array Adapter for the menu that pops up when a user clicks on the fab.
@@ -45,6 +47,8 @@ public class MenuListArrayAdapter extends ArrayAdapter<String> {
             imageView.setImageResource(R.drawable.ic_add_location_black_24dp);
         } else if (s.equals(context.getString(R.string.changeMapRange))) {
             imageView.setImageResource(R.drawable.ic_satellite_black_24dp);
+        } else if (s.equals(context.getString(R.string.recentPosts))) {
+            imageView.setImageResource(R.drawable.ic_list_black_24dp);
         }
         imageView.setColorFilter(Color.GRAY);
 

@@ -11,7 +11,9 @@ function getPostsFromUser() {
     if (isset($_POST["username"])) {
         $username = $_POST["username"];
 
-        $stmt = $pdo->prepare("SELECT * from posts where user_id=?");
+        $stmt = $pdo->prepare(
+            "SELECT post_id, user_id, title, caption, TIMESTAMPDIFF(minute, time, CURRENT_TIMESTAMP) as time, latitude, longitude, likes, user_team, only_visible_team
+             from posts where user_id=? ORDER BY post_id DESC");
         $stmt->execute([$username]);
 
         $result = $stmt->fetchAll();  

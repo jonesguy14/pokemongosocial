@@ -168,4 +168,5 @@
     <string name="refreshMap">Refresh Map</string>
     <string name="changeMapRange">Change Map Range</string>
     <string name="newPost">New Post</string>
+    <string name="recentPosts">My Recent Posts</string>
 </resources>

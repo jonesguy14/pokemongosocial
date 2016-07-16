@@ -1,4 +1,4 @@
-package io.wandr_app.pokemongosocial;
+package io.wandr_app.pokemongosocial.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.PopupMenu;
@@ -24,6 +24,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.wandr_app.pokemongosocial.R;
+import io.wandr_app.pokemongosocial.VolleySingleton;
 import io.wandr_app.pokemongosocial.model.PokeGoComment;
 import io.wandr_app.pokemongosocial.model.Team;
 import io.wandr_app.pokemongosocial.util.CommonUtils;
@@ -180,9 +182,6 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
                         // Get the JSON Response
                         try {
                             JSONObject responseJSON = new JSONObject(response);
-                            Toast.makeText(context, responseJSON.getString("message"),
-                                    Toast.LENGTH_SHORT).show();
-
                             if (responseJSON.has("num_rows")) {
                                 int numRows = responseJSON.getInt("num_rows");
                                 final PokeGoComment[] items = new PokeGoComment[numRows];
@@ -206,7 +205,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
 
                         } catch (Exception e) {
                             e.printStackTrace();
-                            Toast.makeText(context, "Something went wrong on response.",
+                            Toast.makeText(context, "Something went wrong.",
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -214,7 +213,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
             @Override
             public void onErrorResponse(VolleyError error) {
                 error.printStackTrace();
-                Toast.makeText(context, "Something went wrong with Volley.",
+                Toast.makeText(context, "Something went wrong.",
                         Toast.LENGTH_SHORT).show();
             }
         }) {
@@ -237,8 +236,8 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        // Get the JSON Response
-                        try {
+                        // Should we even tell user that it failed?
+                        /*try {
                             JSONObject responseJSON = new JSONObject(response);
                             Toast.makeText(context, responseJSON.getString("message"),
                                     Toast.LENGTH_SHORT).show();
@@ -246,7 +245,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
                             e.printStackTrace();
                             Toast.makeText(context, "Something went wrong on response.",
                                     Toast.LENGTH_SHORT).show();
-                        }
+                        }*/
                     }
                 }, new Response.ErrorListener() {
             @Override

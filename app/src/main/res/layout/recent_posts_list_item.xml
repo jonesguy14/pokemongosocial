@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp">
+
+    <com.android.volley.toolbox.NetworkImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:id="@+id/imageViewPost"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginEnd="5dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/textViewTitle"
+        android:layout_alignParentTop="true"
+        android:textStyle="bold"
+        android:textColor="#000"
+        android:layout_toEndOf="@+id/imageViewPost" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/textViewTime"
+        android:layout_marginTop="5dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textViewTitle"
+        android:layout_toEndOf="@+id/imageViewPost"
+        android:id="@+id/linearLayoutCaptionThumbs"
+        android:paddingBottom="10dp">
+
+        <TextView
+            android:layout_width="0dip"
+            android:layout_weight="5"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/textViewCaption"
+            android:text="post caption goes here lol yea this is working great it doesn't intersect with the right side"
+            />
+
+        <TextView
+            android:layout_width="0dip"
+            android:layout_weight="1"
+            android:layout_height="fill_parent"
+            android:gravity="center_horizontal|center_vertical"
+            android:id="@+id/textViewNumLikes"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:text="+200"
+            android:textColor="#000" />
+
+    </LinearLayout>
+
+
+</RelativeLayout>
