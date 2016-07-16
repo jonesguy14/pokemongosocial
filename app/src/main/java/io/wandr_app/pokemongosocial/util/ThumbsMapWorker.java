@@ -102,11 +102,12 @@ public class ThumbsMapWorker {
                 ThumbsContract.PostThumbsEntry.COLUMN_NAME_THUMBS_STATUS
         };
         try (Cursor c = db.query(ThumbsContract.PostThumbsEntry.TABLE_NAME, projection, null, null,
-                null,
-                null, null)) {
+                null, null, null)) {
             while (c.moveToNext()) {
-                postThumbsMap.put(c.getInt(c.getColumnIndexOrThrow(ThumbsContract.PostThumbsEntry
-                        .COLUMN_NAME_POST_ID)), c.getInt(c.getColumnIndexOrThrow(ThumbsContract.PostThumbsEntry.COLUMN_NAME_THUMBS_STATUS)));
+                postThumbsMap.put(
+                        c.getInt(c.getColumnIndexOrThrow(ThumbsContract.PostThumbsEntry.COLUMN_NAME_POST_ID)),
+                        c.getInt(c.getColumnIndexOrThrow(ThumbsContract.PostThumbsEntry.COLUMN_NAME_THUMBS_STATUS))
+                );
             }
         }
         return postThumbsMap;
@@ -123,12 +124,12 @@ public class ThumbsMapWorker {
                 ThumbsContract.CommentThumbsEntry.COLUMN_NAME_THUMBS_STATUS
         };
         try (Cursor c = db.query(ThumbsContract.CommentThumbsEntry.TABLE_NAME, projection, null, null,
-                null,
-                null, null)) {
+                null, null, null)) {
             while (c.moveToNext()) {
-                commentThumbsMap.put(c.getInt(c.getColumnIndexOrThrow(ThumbsContract.CommentThumbsEntry
-                        .COLUMN_NAME_COMMENT_ID)), c.getInt(c.getColumnIndexOrThrow(ThumbsContract.CommentThumbsEntry
-                        .COLUMN_NAME_THUMBS_STATUS)));
+                commentThumbsMap.put(
+                        c.getInt(c.getColumnIndexOrThrow(ThumbsContract.CommentThumbsEntry.COLUMN_NAME_COMMENT_ID)),
+                        c.getInt(c.getColumnIndexOrThrow(ThumbsContract.CommentThumbsEntry.COLUMN_NAME_THUMBS_STATUS))
+                );
             }
         }
         return commentThumbsMap;

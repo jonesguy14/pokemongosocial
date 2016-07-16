@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Pokemon Go Social</string>
+    <string name="app_name">Pokemon Go: Social!</string>
     <string name="action_settings">Settings</string>
     <string-array name="team_choices">
         <item>Instinct</item>

@@ -1,7 +1,9 @@
 package io.wandr_app.pokemongosocial.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +39,8 @@ import io.wandr_app.pokemongosocial.util.ThumbsMapWorker;
  */
 public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
 
+    private static final String TAG = "CommentsListArrAdapter";
+
     private final Context context;
     private PokeGoComment[] values;
     private int post_id;
@@ -62,7 +66,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
         this.commentThumbsMap = commentThumbsMap;
         worker = new ThumbsMapWorker(context);
         if (makeRequest) {
-            makeRequestGetComments();
+            makeRequestGetComments("");
         }
     }
 
@@ -121,36 +125,20 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
                     popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         public boolean onMenuItemClick(MenuItem item) {
                             if (item.getTitle().toString().equals(context.getResources().getString(R.string.thumbsUp))) {
-                                // Thumb Up
-                                if (values[position].thumbs != 1) {
-                                    makeRequestLikeComment(values[position], 1 - values[position].thumbs);
-
-                                    thumbsUpDownButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_thumb_up_black_24dp));
-                                    thumbsUpDownButton.setColorFilter(context.getResources().getColor(R.color.thumbsUp));
-
-                                    values[position].likes += 1 - values[position].thumbs;
-                                    values[position].thumbs = 1;
-                                    likesTextView.setText(CommonUtils.getNumLikesString
-                                            (values[position].likes));
-
-                                    worker.recordCommentThumbs(values[position].action_id, "UP",
-                                            commentThumbsMap);
+                                if (values[position].thumbs == 1) {
+                                    // Un thumb it
+                                    thumbsComment(values[position], 0, thumbsUpDownButton, likesTextView);
+                                } else {
+                                    // thumbs up
+                                    thumbsComment(values[position], 1, thumbsUpDownButton, likesTextView);
                                 }
                             } else if (item.getTitle().toString().equals(context.getResources().getString(R.string.thumbsDown))) {
-                                // Thumb Down
-                                if (values[position].thumbs != -1) {
-                                    makeRequestLikeComment(values[position], -1 - values[position].thumbs);
-
-                                    thumbsUpDownButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_thumb_down_black_24dp));
-                                    thumbsUpDownButton.setColorFilter(context.getResources().getColor(R.color.thumbsDown));
-
-                                    values[position].likes += -1 - values[position].thumbs;
-                                    values[position].thumbs = -1;
-                                    likesTextView.setText(CommonUtils.getNumLikesString
-                                            (values[position].likes));
-
-                                    worker.recordCommentThumbs(values[position].action_id,
-                                            "DOWN", commentThumbsMap);
+                                if (values[position].thumbs == -1) {
+                                    // Un thumb it
+                                    thumbsComment(values[position], 0, thumbsUpDownButton, likesTextView);
+                                } else {
+                                    // thumbs down
+                                    thumbsComment(values[position], -1, thumbsUpDownButton, likesTextView);
                                 }
                             }
                             return true;
@@ -170,10 +158,40 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
     }
 
     /**
+     * Apply a thumb/unthumb to a comment
+     * @param comment comment affected
+     * @param thumbValue new value, -1, 0, or 1
+     * @param thumbsUpDownButton button so that image is changed
+     * @param thumbsTextView textview that displays # of likes
+     */
+    public void thumbsComment(PokeGoComment comment, int thumbValue, ImageButton thumbsUpDownButton, TextView thumbsTextView) {
+        makeRequestLikeComment(comment, thumbValue - comment.thumbs);
+
+        if (thumbValue == -1) {
+            thumbsUpDownButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_thumb_down_black_24dp));
+            thumbsUpDownButton.setColorFilter(context.getResources().getColor(R.color.thumbsDown));
+        } else if (thumbValue == 1) {
+            thumbsUpDownButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_thumb_up_black_24dp));
+            thumbsUpDownButton.setColorFilter(context.getResources().getColor(R.color.thumbsUp));
+        } else {
+            thumbsUpDownButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_thumbs_up_down_black_24dp));
+            thumbsUpDownButton.setColorFilter(Color.parseColor("#888888"));
+        }
+
+        comment.likes += thumbValue - comment.thumbs;
+        comment.thumbs = thumbValue;
+        thumbsTextView.setText(CommonUtils.getNumLikesString(comment.likes));
+
+        String[] thumbs = {"DOWN", "NONE", "UP"};
+        worker.recordCommentThumbs(comment.action_id, thumbs[thumbValue+1], commentThumbsMap);
+    }
+
+    /**
      * Gets a list of comments for the current post as a JSON.
      * Updates the listview to show all of them.
+     * @param content comment that was just made (if applicable)
      */
-    public void makeRequestGetComments() {
+    public void makeRequestGetComments(final String content) {
         RequestQueue requestQueue = VolleySingleton.getInstance(context).getRequestQueue();
         StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/get_comments.php",
                 new Response.Listener<String>() {
@@ -188,12 +206,14 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
                                 for (int i = 0; i < numRows; ++i) {
                                     items[i] = new PokeGoComment(responseJSON.getJSONObject("" + i));
 
+                                    if (items[i].content.equals(content)) {
+                                        // Is the comment that the user just made, auto-upvote it
+                                        items[i].thumbs = 1;
+                                    }
+
+                                    // If the user has thumbed it before set it to value
                                     if (commentThumbsMap.containsKey(items[i].action_id)) {
-                                        if (commentThumbsMap.get(items[i].action_id).equals("UP")) {
-                                            items[i].thumbs = 1;
-                                        } else if (commentThumbsMap.get(items[i].action_id).equals("DOWN")) {
-                                            items[i].thumbs = -1;
-                                        }
+                                        items[i].thumbs = commentThumbsMap.get(items[i].action_id);
                                     }
                                 }
 
@@ -204,7 +224,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
                             }
 
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            Log.e(TAG, e.toString());
                             Toast.makeText(context, "Something went wrong.",
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -212,7 +232,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
+                Log.e(TAG, error.toString());
                 Toast.makeText(context, "Something went wrong.",
                         Toast.LENGTH_SHORT).show();
             }
@@ -250,7 +270,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
+                Log.e(TAG, error.toString());
                 Toast.makeText(context, "Something went wrong with Volley.",
                         Toast.LENGTH_SHORT).show();
             }

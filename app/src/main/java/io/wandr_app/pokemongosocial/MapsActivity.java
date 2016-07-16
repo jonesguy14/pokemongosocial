@@ -122,6 +122,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Get the ImageLoader through your singleton class.
         mImageLoader = VolleySingleton.getInstance(this).getImageLoader();
 
+        // Set up the fab menu
         fab = (FloatingActionButton) findViewById(R.id.fabMaps);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,7 +136,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         worker = new ThumbsMapWorker(this);
         postThumbsMap = worker.loadPostThumbsMap();
-
         commentThumbsMap = worker.loadCommentThumbsMap();
 
         makeRequestGetUserInfo(user.getUsername());
@@ -815,7 +815,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                             // Need to refresh comment list
                             CommentsListArrayAdapter commentsAdapter = (CommentsListArrayAdapter) commentsList.getAdapter();
-                            commentsAdapter.makeRequestGetComments();
+                            commentsAdapter.makeRequestGetComments(content);
 
                         } catch (Exception e) {
                             e.printStackTrace();
