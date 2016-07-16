@@ -7,14 +7,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.location.LocationManager;
-import android.media.Image;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.graphics.Color;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +22,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -51,12 +49,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,17 +66,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private ImageLoader mImageLoader;
     private NetworkImageView mNetworkImageViewProfilePic;
-    private TextView usernameTextView;
-    private TextView teamTextView;
-    private TextView timeJoinedTextView;
-    private TextView reputationTextView;
+
     private FloatingActionButton fab;
 
-    // Current user stuff
-    private String username;
-    private String password;
-    private String team;
-    private String profileImagePath;
+    // The user using the map
+    private User user;
 
     private double currRange = 1;
 
@@ -104,8 +94,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            username = extras.getString("username");
-            password = extras.getString("password");
+            user = new User(extras.getString("username"), extras.getString("password"),
+                    (TextView) findViewById(R.id.textViewUsername), (TextView) findViewById(R.id
+                    .textViewTeam), (TextView) findViewById(R.id.textViewTimeJoined), (TextView)
+                    findViewById(R.id.textViewReputation));
         } else {
             Toast.makeText(MapsActivity.this, "Something went wrong when initializing.",
                     Toast.LENGTH_SHORT).show();
@@ -118,12 +110,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Get the ImageLoader through your singleton class.
         mImageLoader = VolleySingleton.getInstance(this).getImageLoader();
-
-        // Get the text views
-        usernameTextView = (TextView) findViewById(R.id.textViewUsername);
-        teamTextView = (TextView) findViewById(R.id.textViewTeam);
-        timeJoinedTextView = (TextView) findViewById(R.id.textViewTimeJoined);
-        reputationTextView = (TextView) findViewById(R.id.textViewReputation);
 
         fab = (FloatingActionButton) findViewById(R.id.fabMaps);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -143,7 +129,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         loadCommentThumbsMap();
 
 
-        makeRequestGetUserInfo(username);
+        makeRequestGetUserInfo(user.getUsername());
 
         locationListener = new MyLocationListener(this);
 
@@ -170,29 +156,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     /**
      * Gets the current user's info, changing the text fields to the correct text.
      * Also changes the profile pic thumbnail
-     *
-     * @param user user to examine
      */
-    private void makeRequestGetUserInfo(final String user) {
+    private void makeRequestGetUserInfo(final String username) {
         RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
         StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/get_user_info.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        System.out.println(response);
-                        // Get the JSON Response
                         try {
                             JSONObject responseJSON = new JSONObject(response);
-                            System.out.println(responseJSON.toString());
-                            usernameTextView.setText(responseJSON.getString("username"));
-                            teamTextView.setText(responseJSON.getString("team") + " Team");
-                            timeJoinedTextView.setText("Joined " + responseJSON.getString("time_joined").split(" ")[0]);
-                            reputationTextView.setText("Reputation: " + getNumLikesString(responseJSON.getInt("reputation")));
+                            user.updateFields(responseJSON);
 
-                            username = responseJSON.getString("username");
-                            team = responseJSON.getString("team");
-                            profileImagePath = responseJSON.getString("profile_image_path");
-                            mNetworkImageViewProfilePic.setImageUrl(IMAGE_URL_BASE + profileImagePath, mImageLoader);
+                            mNetworkImageViewProfilePic.setImageUrl(IMAGE_URL_BASE +
+                                    user.profileImagePath, mImageLoader);
 
                             Toast.makeText(MapsActivity.this, responseJSON.getString("message"),
                                     Toast.LENGTH_SHORT).show();
@@ -211,7 +187,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 HashMap<String, String> map = new HashMap<>();
-                map.put("username", user);
+                map.put("username", username);
                 return map;
             }
         };
@@ -301,13 +277,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    /**
-     * Gets the current user's info, changing the text fields to the correct text.
-     * Also changes the profile pic thumbnail
-     *
-     * @param user user to examine
-     */
-    private void makeRequestGetAllPostsFromUser(final String user) {
+    private void makeRequestGetAllPostsFromUser(final String username) {
         RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
         StringRequest request = new StringRequest(Request.Method.POST, "http://wandr-app.io/pokemon/get_posts_from_user.php",
                 new Response.Listener<String>() {
@@ -339,7 +309,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 HashMap<String, String> map = new HashMap<>();
-                map.put("username", user);
+                map.put("username", username);
                 return map;
             }
         };
@@ -357,8 +327,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
-     * Gets the current user's info, changing the text fields to the correct text.
-     * Also changes the profile pic thumbnail
+     * Gets posts within range
      */
     public void makeRequestGetNearbyPosts() {
         if (!isCurrentLocationAvailable()) {
@@ -398,7 +367,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 map.put("latitude", "" + locationListener.getCurrLocation().getLatitude());
                 map.put("longitude", "" + locationListener.getCurrLocation().getLongitude());
                 map.put("range", "" + currRange);
-                map.put("team", team);
+                map.put("team", user.team);
                 return map;
             }
         };
@@ -416,69 +385,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void showViewPostDialog(final PokeGoPost post) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(getLayoutInflater().inflate(R.layout.view_post_dialog, null))
+        builder.setView(getLayoutInflater().inflate(ViewPostDialog.layout, null))
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // Update reputation
-                        makeRequestGetUserInfo(username);
+                        makeRequestGetUserInfo(user.getUsername());
                         dialog.dismiss();
                     }
                 });
         final AlertDialog dialog = builder.create();
         dialog.show();
 
-        final TextView usernameTextView = (TextView) dialog.findViewById(R.id.textViewUsername);
-        final TextView teamTextView = (TextView) dialog.findViewById(R.id.textViewTeam);
-        final TextView postTimeTextView = (TextView) dialog.findViewById(R.id.textViewPostTime);
-        final TextView publicOrTeamTextView = (TextView) dialog.findViewById(R.id.textViewPublicOrTeam);
+        final ViewPostDialog viewPostDialog = new ViewPostDialog(dialog, post, getResources());
 
-        final ImageView postImageView = (ImageView) dialog.findViewById(R.id.imageViewPost);
-        final ImageView publicOrTeamImageView = (ImageView) dialog.findViewById(R.id.imageViewPublicOrTeam);
-
-        final TextView postPlaceTextView = (TextView) dialog.findViewById(R.id.textViewPostPlace);
-        final TextView postCaptionTextView = (TextView) dialog.findViewById(R.id.textViewPostCaption);
-
-        final TextView numLikes = (TextView) dialog.findViewById(R.id.viewNumLikes);
-        final ImageButton thumbUpButton = (ImageButton) dialog.findViewById(R.id.buttonThumbUp);
-        final ImageButton thumbDownButton = (ImageButton) dialog.findViewById(R.id.buttonThumbDown);
-        final Button commentButton = (Button) dialog.findViewById(R.id.buttonComment);
-
-        usernameTextView.setText(post.user_id);
-
-        teamTextView.setText(post.user_team);
-        if (post.user_team.equals("Instinct")) {
-            teamTextView.setTextColor(getResources().getColor(R.color.Instinct));
-        } else if (post.user_team.equals("Mystic")) {
-            teamTextView.setTextColor(getResources().getColor(R.color.Mystic));
-        } else if (post.user_team.equals("Valor")) {
-            teamTextView.setTextColor(getResources().getColor(R.color.Valor));
-        }
-
-
-        if (post.time > 1) {
-            postTimeTextView.setText(post.time + " min ago");
-        } else {
-            postTimeTextView.setText("Just now");
-        }
-
-        if (post.onlyVisibleTeam) {
-            publicOrTeamImageView.setImageResource(R.drawable.ic_lock_black_24dp);
-            publicOrTeamTextView.setText("Team Only");
-        } else {
-            publicOrTeamImageView.setImageResource(R.drawable.ic_public_black_24dp);
-            publicOrTeamTextView.setText("Public");
-        }
-        publicOrTeamImageView.setColorFilter(Color.GRAY);
-
-
-        //postImageView.setImageUrl(IMAGE_URL_BASE + post.getImageURL(), mImageLoader);
         // Get the right image for the post
         ImageRequest request = new ImageRequest(IMAGE_URL_BASE + post.getImageURL(),
                 new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap bitmap) {
                         Bitmap resized = PokeGoPost.getResizedBitmap(bitmap, bitmap.getWidth() * 5, bitmap.getHeight() * 5);
-                        postImageView.setImageBitmap(resized);
+                        viewPostDialog.postImageView.setImageBitmap(resized);
                     }
                 }, 0, 0, null,
                 new Response.ErrorListener() {
@@ -490,53 +416,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
         requestQueue.add(request);
 
-        postPlaceTextView.setText(post.title);
-        postCaptionTextView.setText(post.caption);
-
-        numLikes.setText(getNumLikesString(post.likes));
-
         final ListView commentsListView = (ListView) dialog.findViewById(R.id.listViewComments);
         PokeGoComment[] comments = new PokeGoComment[1];
         comments[0] = new PokeGoComment();
-        commentsListView.setAdapter(new CommentsListArrayAdapter(this, commentThumbsMap, username, password, commentsListView, comments, post.post_id, true));
+        commentsListView.setAdapter(new CommentsListArrayAdapter(this, commentThumbsMap, user.getUsername(),
+                user.getPassword(), commentsListView, comments, post.post_id, true));
 
-        if (post.thumbs == 1) {
-            thumbUpButton.setColorFilter(Color.GREEN);
-        } else if (post.thumbs == -1) {
-            thumbDownButton.setColorFilter(Color.RED);
-        }
-
-        thumbUpButton.setOnClickListener(new View.OnClickListener() {
+        viewPostDialog.thumbUpButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
                 if (post.thumbs != 1) {
                     makeRequestLikePost(post.post_id, post.user_id, 1 - post.thumbs);
                     post.likes += 1 - post.thumbs;
                     post.thumbs = 1;
-                    thumbUpButton.setColorFilter(Color.GREEN);
-                    thumbDownButton.setColorFilter(Color.BLACK);
-                    numLikes.setText(getNumLikesString(post.likes));
+                    viewPostDialog.thumbUpButton.setColorFilter(Color.GREEN);
+                    viewPostDialog.thumbDownButton.setColorFilter(Color.BLACK);
+                    viewPostDialog.numLikes.setText(ViewPostDialog.getNumLikesString(post.likes));
                     recordPostThumbs(post.post_id, "UP");
                 }
             }
         });
 
-        thumbDownButton.setOnClickListener(new View.OnClickListener() {
+        viewPostDialog.thumbDownButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
                 if (post.thumbs != -1) {
                     makeRequestLikePost(post.post_id, post.user_id, -1 - post.thumbs);
                     post.likes += -1 - post.thumbs;
                     post.thumbs = -1;
-                    thumbDownButton.setColorFilter(Color.RED);
-                    thumbUpButton.setColorFilter(Color.BLACK);
-                    numLikes.setText(getNumLikesString(post.likes));
+                    viewPostDialog.thumbDownButton.setColorFilter(Color.RED);
+                    viewPostDialog.thumbUpButton.setColorFilter(Color.BLACK);
+                    viewPostDialog.numLikes.setText(ViewPostDialog.getNumLikesString(post.likes));
                     recordPostThumbs(post.post_id, "DOWN");
                 }
             }
         });
 
-        commentButton.setOnClickListener(new View.OnClickListener() {
+        viewPostDialog.commentButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
                 AlertDialog.Builder alert = new AlertDialog.Builder(MapsActivity.this);
@@ -562,12 +478,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         // Make sure it shows the correct number of likes in case that changed since log in
-        makeRequestNumLikes(post.post_id, numLikes);
-
-    }
-
-    private String getNumLikesString(int numLikes) {
-        return numLikes > 0 ? "+" + numLikes : String.valueOf(numLikes);
+        makeRequestNumLikes(post.post_id, viewPostDialog.numLikes);
     }
 
     /**
@@ -623,7 +534,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 // Get the right image for the post
-                ImageRequest request = new ImageRequest(IMAGE_URL_BASE + (pokemonSpinner.getSelectedItemPosition()+1) + ".png",
+                ImageRequest request = new ImageRequest(IMAGE_URL_BASE + (pokemonSpinner.getSelectedItemPosition() + 1) + ".png",
                         new Response.Listener<Bitmap>() {
                             @Override
                             public void onResponse(Bitmap bitmap) {
@@ -649,7 +560,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         final Button postButton = (Button) dialog.findViewById(R.id.buttonPost);
 
         final CheckBox onlyVisibleTeamCheckBox = (CheckBox) dialog.findViewById(R.id.checkBoxOnlyVisibleTeam);
-        onlyVisibleTeamCheckBox.setText("Only visible to " + team + " team");
+        onlyVisibleTeamCheckBox.setText("Only visible to " + user.team + " team");
 
         postButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -681,7 +592,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     Toast.LENGTH_SHORT).show();
 
                             // Create a PokeGoPost object and add it to the map
-                            PokeGoPost newPost = new PokeGoPost(responseJSON.getInt("post_id"), username, team,
+                            PokeGoPost newPost = new PokeGoPost(responseJSON.getInt("post_id"),
+                                    user.getUsername(), user.team,
                                     title, caption, latitude, longitude, onlyVisibleTeam);
                             loadedPosts.add(newPost);
                             addPostMarkers();
@@ -702,10 +614,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 HashMap<String, String> map = new HashMap<>();
-                map.put("username", username);
-                map.put("password", password);
+                map.put("username", user.getUsername());
+                map.put("password", user.getPassword());
                 map.put("title", title);
-                map.put("team", team);
+                map.put("team", user.team);
                 map.put("caption", caption);
                 map.put("latitude", "" + latitude);
                 map.put("longitude", "" + longitude);
@@ -729,7 +641,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             Toast.makeText(MapsActivity.this, responseJSON.getString("message"),
                                     Toast.LENGTH_SHORT).show();
 
-                            numLikesText.setText(getNumLikesString(responseJSON.getInt("likes")));
+                            numLikesText.setText(ViewPostDialog.getNumLikesString(responseJSON
+                                    .getInt("likes")));
 
                             for (PokeGoPost post : postHashMap.values()) {
                                 if (post.post_id == post_id) {
@@ -755,7 +668,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             protected Map<String, String> getParams() throws AuthFailureError {
                 HashMap<String, String> map = new HashMap<>();
                 map.put("post_id", "" + post_id);
-                map.put("username", username);
+                map.put("username", user.getUsername());
                 return map;
             }
         };
@@ -797,8 +710,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             protected Map<String, String> getParams() throws AuthFailureError {
                 HashMap<String, String> map = new HashMap<>();
                 map.put("post_id", "" + post_id);
-                map.put("username", username);
-                map.put("password", password);
+                map.put("username", user.getUsername());
+                map.put("password", user.getPassword());
                 map.put("content", content);
                 return map;
             }
@@ -838,8 +751,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 HashMap<String, String> map = new HashMap<>();
                 map.put("post_id", "" + post_id);
                 map.put("post_user_id", post_user_id);
-                map.put("username", username);
-                map.put("password", password);
+                map.put("username", user.getUsername());
+                map.put("password", user.getPassword());
                 map.put("change", "" + change);
                 return map;
             }
@@ -849,7 +762,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     /**
      * Records if a post has been thumbed up or down, so that repeated voting is stopped.
-     * @param post_id the post that is liked
+     *
+     * @param post_id  the post that is liked
      * @param upOrDown "UP" or "DOWN", based on thumb
      */
     private void recordPostThumbs(int post_id, String upOrDown) {
@@ -864,8 +778,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             outputStream = openFileOutput("posts_thumbs.txt", MODE_APPEND);
             outputStream.write(data.getBytes());
             outputStream.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Log.e("Exception", "File write failed: " + e.toString());
         }
     }
@@ -906,8 +819,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 }
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Log.e("Main", "File not found: " + e.toString());
         } catch (IOException e) {
             Log.e("Main", "Cannot read file: " + e.toString());
@@ -950,8 +862,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 }
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Log.e("Main", "File not found: " + e.toString());
         } catch (IOException e) {
             Log.e("Main", "Cannot read file: " + e.toString());
@@ -961,6 +872,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     /**
      * Used to make the view post dialog fully scrollable.
      * Needed so that the listview of comments expands as needed.
+     *
      * @param listView listview affected
      */
     public static void setListViewHeightBasedOnChildren(ListView listView) {
