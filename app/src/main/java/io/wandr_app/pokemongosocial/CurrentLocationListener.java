@@ -8,11 +8,11 @@ import android.os.Bundle;
  * Location listener to get the current location.
  * Created by Achi Jones on 7/11/2016.
  */
-public class MyLocationListener implements LocationListener {
+public class CurrentLocationListener implements LocationListener {
     private Location currLocation;
     private MapsActivity mapsAct;
 
-    public MyLocationListener(MapsActivity mapsAct) {
+    public CurrentLocationListener(MapsActivity mapsAct) {
         super();
         this.mapsAct = mapsAct;
     }

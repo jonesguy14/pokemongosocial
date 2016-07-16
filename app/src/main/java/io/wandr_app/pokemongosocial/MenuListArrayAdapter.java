@@ -37,8 +37,6 @@ public class MenuListArrayAdapter extends ArrayAdapter<String> {
         // Change icon based on name
         String s = values[position];
 
-        System.out.println(s);
-
         if (s.equals(context.getString(R.string.myLocation))) {
             imageView.setImageResource(R.drawable.ic_person_pin_black_24dp);
         } else if (s.equals(context.getString(R.string.refreshMap))) {

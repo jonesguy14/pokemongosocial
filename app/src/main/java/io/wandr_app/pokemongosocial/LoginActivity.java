@@ -2,21 +2,13 @@ package io.wandr_app.pokemongosocial;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
-import android.view.View;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,15 +24,13 @@ import com.android.volley.toolbox.Volley;
 
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LoginActivity extends AppCompatActivity {
-
+    private final static String TAG = "Login";
     private Button newUserButton;
     private Button loginButton;
     private EditText usernameEditText;
@@ -113,7 +103,6 @@ public class LoginActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        System.out.println(response);
                         // Get the JSON Response
                         try {
                             JSONObject responseJSON = new JSONObject(response);
@@ -127,6 +116,7 @@ public class LoginActivity extends AppCompatActivity {
                                 LoginActivity.this.startActivity(myIntent);
                             }
                         } catch (Exception e) {
+                            Log.e(TAG, "Could not log in", e);
                             Toast.makeText(LoginActivity.this, "Something went wrong.",
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -198,7 +188,6 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         // Get the JSON Response
-                        System.out.println("New user response: " + response);
                         try {
                             JSONObject responseJSON = new JSONObject(response);
                             Toast.makeText(LoginActivity.this, responseJSON.getString("message"),
@@ -212,7 +201,7 @@ public class LoginActivity extends AppCompatActivity {
                                 LoginActivity.this.startActivity(myIntent);
                             }
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            Log.e(TAG, "Could not make new user", e);
                             Toast.makeText(LoginActivity.this, "Something went wrong.",
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -220,7 +209,7 @@ public class LoginActivity extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
+                Log.e(TAG, "Volley error", error);
                 Toast.makeText(LoginActivity.this, "Something went wrong.",
                         Toast.LENGTH_SHORT).show();
             }

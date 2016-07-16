@@ -1,4 +1,4 @@
-package io.wandr_app.pokemongosocial;
+package io.wandr_app.pokemongosocial.model;
 
 import org.json.JSONObject;
 
