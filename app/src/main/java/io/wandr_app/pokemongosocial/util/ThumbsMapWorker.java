@@ -8,8 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.wandr_app.pokemongosocial.db.CommentsThumbsDbHelper;
-import io.wandr_app.pokemongosocial.db.PostThumbsDbHelper;
+import io.wandr_app.pokemongosocial.db.DbHelper;
 import io.wandr_app.pokemongosocial.db.ThumbsContract;
 
 /**
@@ -17,12 +16,10 @@ import io.wandr_app.pokemongosocial.db.ThumbsContract;
  */
 public class ThumbsMapWorker {
     private static final String TAG = "ThumbsMapWorker";
-    private PostThumbsDbHelper postHelper;
-    private CommentsThumbsDbHelper commentHelper;
+    private DbHelper dbHelper;
 
     public ThumbsMapWorker(Context context) {
-        postHelper = new PostThumbsDbHelper(context);
-        commentHelper = new CommentsThumbsDbHelper(context);
+        dbHelper = new DbHelper(context);
     }
 
     /**
@@ -40,7 +37,7 @@ public class ThumbsMapWorker {
         }
         postThumbsMap.put(post_id, thumbsStringToInt(thumbsString));
 
-        SQLiteDatabase db = postHelper.getWritableDatabase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(ThumbsContract.PostThumbsEntry.COLUMN_NAME_POST_ID, post_id);
         values.put(ThumbsContract.PostThumbsEntry.COLUMN_NAME_THUMBS_STATUS, thumbsStringToInt
@@ -49,7 +46,7 @@ public class ThumbsMapWorker {
     }
 
     private void removePostThumbsEntry(int post_id) {
-        SQLiteDatabase db = postHelper.getWritableDatabase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.delete(ThumbsContract.PostThumbsEntry.TABLE_NAME, ThumbsContract
                 .PostThumbsEntry.COLUMN_NAME_POST_ID + "=?", new String[]{String.valueOf
                 (post_id)});
@@ -70,7 +67,7 @@ public class ThumbsMapWorker {
         }
         commentThumbsMap.put(action_id, thumbsStringToInt(thumbsString));
 
-        SQLiteDatabase db = commentHelper.getWritableDatabase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(ThumbsContract.CommentThumbsEntry.COLUMN_NAME_COMMENT_ID, action_id);
         values.put(ThumbsContract.CommentThumbsEntry.COLUMN_NAME_THUMBS_STATUS, thumbsStringToInt
@@ -79,7 +76,7 @@ public class ThumbsMapWorker {
     }
 
     private void removeCommentThumbsEntry(int action_id) {
-        SQLiteDatabase db = commentHelper.getWritableDatabase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.delete(ThumbsContract.CommentThumbsEntry.TABLE_NAME, ThumbsContract
                 .CommentThumbsEntry.COLUMN_NAME_COMMENT_ID + "=?", new String[]{String.valueOf
                 (action_id)});
@@ -101,7 +98,7 @@ public class ThumbsMapWorker {
      */
     public Map<Integer, Integer> loadPostThumbsMap() {
         Map<Integer, Integer> postThumbsMap = new HashMap<>();
-        SQLiteDatabase db = postHelper.getReadableDatabase();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
         String[] projection = {
                 ThumbsContract.PostThumbsEntry.COLUMN_NAME_POST_ID,
                 ThumbsContract.PostThumbsEntry.COLUMN_NAME_THUMBS_STATUS
@@ -122,7 +119,7 @@ public class ThumbsMapWorker {
      */
     public Map<Integer, Integer> loadCommentThumbsMap() {
         Map<Integer, Integer> commentThumbsMap = new HashMap<>();
-        SQLiteDatabase db = commentHelper.getReadableDatabase();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
         String[] projection = {
                 ThumbsContract.CommentThumbsEntry.COLUMN_NAME_COMMENT_ID,
                 ThumbsContract.CommentThumbsEntry.COLUMN_NAME_THUMBS_STATUS
