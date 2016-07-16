@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by kylel on 7/16/2016.
  */
 public class DbHelper extends SQLiteOpenHelper {
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 7;
     public static final String DATABASE_NAME = "GoSocial.db";
     private static final String INTEGER_TYPE = " INTEGER";
 
@@ -38,12 +38,14 @@ public class DbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_ENTRIES_POST + SQL_CREATE_ENTRIES_COMMENT);
+        db.execSQL(SQL_CREATE_ENTRIES_POST);
+        db.execSQL(SQL_CREATE_ENTRIES_COMMENT);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(SQL_DELETE_ENTRIES_POST + SQL_DELETE_ENTRIES_COMMENT);
+        db.execSQL(SQL_DELETE_ENTRIES_POST);
+        db.execSQL(SQL_DELETE_ENTRIES_COMMENT);
         onCreate(db);
     }
 }
