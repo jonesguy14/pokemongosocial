@@ -66,11 +66,18 @@ public class ViewPostDialog {
         postPlaceTextView.setText(post.title);
         postCaptionTextView.setText(post.caption);
 
+
         numLikes.setText(CommonUtils.getNumLikesString(post.likes));
-        if (post.thumbs == 1) {
-            thumbUpButton.setColorFilter(Color.GREEN);
-        } else if (post.thumbs == -1) {
-            thumbDownButton.setColorFilter(Color.RED);
+        switch (post.thumbs) {
+            case -1:
+                makeThumbsDown(post.likes);
+                break;
+            case 0:
+                makeThumbsNeutral(post.likes);
+                break;
+            case 1:
+                makeThumbsUp(post.likes);
+                break;
         }
     }
 

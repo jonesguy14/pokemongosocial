@@ -54,30 +54,30 @@ public class ThumbsMapWorker {
     /**
      * Records if a comment has been thumbed up or down, so that repeated voting is stopped.
      *
-     * @param action_id    the comment that is liked
+     * @param comment_id    the comment that is liked
      * @param thumbsString "UP", "DOWN", "NONE based on thumb
      */
-    public void recordCommentThumbs(int action_id, String thumbsString, Map<Integer, Integer> commentThumbsMap) {
+    public void recordCommentThumbs(int comment_id, String thumbsString, Map<Integer, Integer> commentThumbsMap) {
         if (thumbsString.equals("NONE")) {
-            commentThumbsMap.remove(action_id);
-            removeCommentThumbsEntry(action_id);
+            commentThumbsMap.remove(comment_id);
+            removeCommentThumbsEntry(comment_id);
             return;
         }
-        commentThumbsMap.put(action_id, thumbsStringToInt(thumbsString));
+        commentThumbsMap.put(comment_id, thumbsStringToInt(thumbsString));
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(ThumbsContract.CommentThumbsEntry.COLUMN_NAME_COMMENT_ID, action_id);
+        values.put(ThumbsContract.CommentThumbsEntry.COLUMN_NAME_COMMENT_ID, comment_id);
         values.put(ThumbsContract.CommentThumbsEntry.COLUMN_NAME_THUMBS_STATUS, thumbsStringToInt
                 (thumbsString));
         db.insert(ThumbsContract.CommentThumbsEntry.TABLE_NAME, null, values);
     }
 
-    private void removeCommentThumbsEntry(int action_id) {
+    private void removeCommentThumbsEntry(int comment_id) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.delete(ThumbsContract.CommentThumbsEntry.TABLE_NAME, ThumbsContract
                 .CommentThumbsEntry.COLUMN_NAME_COMMENT_ID + "=?", new String[]{String.valueOf
-                (action_id)});
+                (comment_id)});
     }
 
     private int thumbsStringToInt(String thumbsString) {
@@ -87,6 +87,7 @@ public class ThumbsMapWorker {
             case "DOWN":
                 return -1;
             default:
+                // we shouldn't be saving/retrieving NONEs with the db
                 throw new IllegalStateException();
         }
     }
