@@ -14,7 +14,7 @@
             android:layout_height="50dp"
             android:id="@+id/imageViewComment"
             android:src="@drawable/ic_mode_comment_black_24dp"
-            android:tint="@color/colorAccent"/>
+            android:tint="@color/colorPrimary"/>
 
         <EditText
             android:layout_width="match_parent"

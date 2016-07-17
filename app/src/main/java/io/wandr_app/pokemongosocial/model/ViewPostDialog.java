@@ -94,8 +94,8 @@ public class ViewPostDialog {
     }
 
     public void makeThumbsNeutral(int likes) {
-        thumbDownButton.setColorFilter(null);
-        thumbUpButton.setColorFilter(null);
+        thumbDownButton.setColorFilter(Color.WHITE);
+        thumbUpButton.setColorFilter(Color.WHITE);
         numLikes.setText(CommonUtils.getNumLikesString(likes));
     }
 
