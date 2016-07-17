@@ -240,7 +240,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         addPostMarkers();
 
-        mMap.getUiSettings().setZoomControlsEnabled(true);
+        // Don't need zoom controls in the real world, use ya fingas
+        //mMap.getUiSettings().setZoomControlsEnabled(true);
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override

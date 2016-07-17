@@ -24,7 +24,8 @@ function getNearbyPosts() {
             FROM posts WHERE 
             latitude < ? AND latitude > ? AND 
             longitude < ? AND longitude > ? AND 
-            (only_visible_team = 0 OR user_team = ?)");
+            (only_visible_team = 0 OR user_team = ?) AND
+            TIMESTAMPDIFF(hour, time, CURRENT_TIMESTAMP) <= 24");
         $stmt->execute([$latTopRange, $latBotRange, $lonTopRange, $lonBotRange, $team]);
 
         $result = $stmt->fetchAll();       
