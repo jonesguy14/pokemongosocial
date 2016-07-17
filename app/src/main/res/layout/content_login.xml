@@ -17,7 +17,7 @@
         android:layout_height="175dp"
         android:id="@+id/imageViewLogo"
         android:layout_centerHorizontal="true"
-        android:src="@mipmap/ic_launcher"
+        android:src="@drawable/main_logo"
         />
 
     <!--

@@ -130,7 +130,7 @@
                     android:layout_weight="4"
                     android:layout_height="50dp"
                     android:text="@string/comment"
-                    android:drawableStart="@drawable/ic_comment_white"
+                    android:drawableStart="@drawable/ic_mode_comment_white_24dp"
                     android:id="@+id/buttonComment"
                     android:background="@drawable/button_shape"
                     android:textColor="#FFF"
