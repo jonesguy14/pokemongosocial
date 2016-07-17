@@ -57,6 +57,7 @@
                 android:id="@+id/textViewReputation"
                 android:textColor="#000"
                 android:textSize="16sp"
+                android:textStyle="bold"
                 android:text="Reputation: +100"
                 />
 

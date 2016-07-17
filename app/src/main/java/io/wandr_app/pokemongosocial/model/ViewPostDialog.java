@@ -32,8 +32,12 @@ public class ViewPostDialog {
     public Button commentButton;
     public static final int layout = R.layout.view_post_dialog;
 
+    public Resources resources;
+
     // Build from a visible dialog with the correct layout, and post
     public ViewPostDialog(AlertDialog dialog, PokeGoPost post, Resources resources) {
+        this.resources = resources;
+
         usernameTextView = (TextView) dialog.findViewById(R.id.textViewUsername);
         teamTextView = (TextView) dialog.findViewById(R.id.textViewTeam);
         postTimeTextView = (TextView) dialog.findViewById(R.id.textViewPostTime);
@@ -88,14 +92,14 @@ public class ViewPostDialog {
     }
 
     public void makeThumbsUp(int likes) {
-        thumbUpButton.setColorFilter(Color.GREEN);
-        thumbDownButton.setColorFilter(Color.BLACK);
+        thumbUpButton.setColorFilter(resources.getColor(R.color.thumbsUp));
+        thumbDownButton.setColorFilter(Color.WHITE);
         numLikes.setText(CommonUtils.getNumLikesString(likes));
     }
 
     public void makeThumbsDown(int likes) {
-        thumbDownButton.setColorFilter(Color.RED);
-        thumbUpButton.setColorFilter(Color.BLACK);
+        thumbDownButton.setColorFilter(resources.getColor(R.color.thumbsDown));
+        thumbUpButton.setColorFilter(Color.WHITE);
         numLikes.setText(CommonUtils.getNumLikesString(likes));
     }
 }

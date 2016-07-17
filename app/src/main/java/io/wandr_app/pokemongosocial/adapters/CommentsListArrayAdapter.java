@@ -209,6 +209,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
                                     if (items[i].content.equals(content)) {
                                         // Is the comment that the user just made, auto-upvote it
                                         items[i].thumbs = 1;
+                                        worker.recordCommentThumbs(items[i].action_id, "UP", commentThumbsMap);
                                     }
 
                                     // If the user has thumbed it before set it to value

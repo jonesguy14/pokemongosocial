@@ -21,7 +21,7 @@ function newUser() {
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
         
         try {
-            $stmt = $pdo->prepare("INSERT INTO users values (?, ?, ?, ?, CURRENT_TIMESTAMP, 100)");
+            $stmt = $pdo->prepare("INSERT INTO users values (?, ?, ?, ?, CURRENT_TIMESTAMP, 5)");
         
             if ($stmt->execute([$username, $passwordHash, $profile_image_path, $team])) {
                 $response["success"] = 1;

@@ -164,7 +164,7 @@ public class LoginActivity extends AppCompatActivity {
                 newPassword = passwordEditText.getText().toString();
                 newTeam = teamSpinner.getSelectedItem().toString();
                 String confirmPassword = passwordConfirmEditText.getText().toString();
-                if (newPassword.equals(confirmPassword)) {
+                if (newPassword.equals(confirmPassword) && newPassword.length() > 0) {
                     if (isValidName(newUsername)) {
                         makeRequestNewUser(dialog);
                     } else {
@@ -172,7 +172,7 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    Toast.makeText(LoginActivity.this, "Passwords don't match!",
+                    Toast.makeText(LoginActivity.this, "Passwords don't match or are empty!",
                             Toast.LENGTH_SHORT).show();
                     passwordEditText.setText("");
                     passwordConfirmEditText.setText("");

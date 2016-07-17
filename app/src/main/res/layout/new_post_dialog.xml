@@ -52,6 +52,7 @@
         <EditText
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:singleLine="true"
             android:id="@+id/editTextCaption" />
     </LinearLayout>
 
@@ -72,6 +73,7 @@
         android:layout_below="@+id/checkBoxOnlyVisibleTeam"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="15dp"
+        android:drawableStart="@drawable/ic_check_circle_white_24dp"
         android:background="@drawable/button_shape_accent"
         android:textColor="#FFF"/>
 

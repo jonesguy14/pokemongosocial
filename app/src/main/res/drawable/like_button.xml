@@ -4,10 +4,10 @@
     <item android:state_pressed="true" >
         <shape>
             <solid
-                android:color="@color/bulbasaurBlueDark" />
+                android:color="@android:color/black" />
             <stroke
                 android:width="3dp"
-                android:color="@color/bulbasaurBlueDark" />
+                android:color="@android:color/black" />
             <corners
                 android:radius="1dp" />
             <padding
@@ -21,10 +21,10 @@
     <item android:state_focused="true" >
         <shape>
             <solid
-                android:color="@color/bulbasaurBlueDark" />
+                android:color="@android:color/black" />
             <stroke
                 android:width="3dp"
-                android:color="@color/bulbasaurBlueDark" />
+                android:color="@android:color/black" />
             <corners
                 android:radius="1dp" />
             <padding
@@ -45,7 +45,7 @@
                 android:right="0dp"
                 android:bottom="0dp"/>
             <solid
-                android:color="@color/bulbasaurBlue" />
+                android:color="@android:color/black" />
 
         </shape>
     </item>

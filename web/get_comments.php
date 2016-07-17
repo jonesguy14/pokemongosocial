@@ -13,7 +13,7 @@ function getAllUserComments() {
     $stmt = $pdo->prepare("SELECT a.action_id, a.content, TIMESTAMPDIFF(minute, a.time, CURRENT_TIMESTAMP) as time, a.likes, u.username, u.team, u.profile_image_path FROM 
                 (SELECT * FROM actions WHERE post_id=?) as a 
                 INNER JOIN users as u ON a.user_id=u.username
-                ORDER BY a.action_id ASC");
+                ORDER BY a.likes DESC");
     $stmt->execute([$post_id]);
 
     $result = $stmt->fetchAll();  

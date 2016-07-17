@@ -11,6 +11,6 @@
     <color name="Instinct">#cba805</color>
     <color name="Mystic">#0677ee</color>
     <color name="Valor">#f3150a</color>
-    <color name="thumbsUp">#00a805</color>
-    <color name="thumbsDown">#bd0000</color>
+    <color name="thumbsUp">#66ff66</color>
+    <color name="thumbsDown">#ff4d4d</color>
 </resources>

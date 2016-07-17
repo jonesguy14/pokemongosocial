@@ -51,6 +51,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:singleLine="true"
             android:id="@+id/editTextUsername" />
     </LinearLayout>
 
@@ -75,6 +76,7 @@
             android:layout_weight="1"
             android:inputType="textPassword"
             android:ems="10"
+            android:singleLine="true"
             android:id="@+id/editTextPassword" />
     </LinearLayout>
 
@@ -86,6 +88,7 @@
         android:layout_marginTop="20dp"
         android:layout_below="@+id/linearLayout"
         android:layout_centerHorizontal="true"
+        android:drawableStart="@drawable/ic_account_circle_white_24dp"
         android:background="@drawable/button_shape"
         android:textColor="#FFF"/>
 
@@ -97,6 +100,7 @@
         android:layout_marginTop="10dp"
         android:layout_below="@+id/buttonLogin"
         android:layout_centerHorizontal="true"
+        android:drawableStart="@drawable/ic_person_add_white_24dp"
         android:background="@drawable/button_shape_accent"
         android:textColor="#FFF"/>
 

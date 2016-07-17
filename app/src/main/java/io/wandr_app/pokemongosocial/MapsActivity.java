@@ -169,7 +169,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (isCurrentLocationAvailable()) {
             Location currentLocation = locationListener.getCurrLocation();
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation
-                    .getLatitude(), currentLocation.getLongitude()), 18));
+                    .getLatitude(), currentLocation.getLongitude()), 15));
         }
     }
 
@@ -261,11 +261,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 // Check if user has voted on it already
                 if (postThumbsMap.containsKey(p.post_id)) {
-                    if (postThumbsMap.get(p.post_id).equals("UP")) {
-                        p.thumbs = 1;
-                    } else if (postThumbsMap.get(p.post_id).equals("DOWN")) {
-                        p.thumbs = -1;
-                    }
+                    p.thumbs = postThumbsMap.get(p.post_id);
                 }
 
                 if (shouldAdd) {
@@ -320,7 +316,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             showRecentPostsDialog(posts);
 
                         } catch (Exception e) {
-                            Toast.makeText(MapsActivity.this, "Something went wrong on response.",
+                            Toast.makeText(MapsActivity.this, "No posts found!",
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -524,25 +520,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         viewPostDialog.commentButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
-                AlertDialog.Builder alert = new AlertDialog.Builder(MapsActivity.this);
-                final EditText edittext = new EditText(MapsActivity.this);
-                alert.setTitle("Comment on post");
-                alert.setView(edittext);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
+                builder.setTitle("New Comment")
+                        .setView(getLayoutInflater().inflate(R.layout.comment_dialog, null));
+                final AlertDialog dialog = builder.create();
+                dialog.show();
 
-                alert.setPositiveButton("Post", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        String content = edittext.getText().toString();
-                        makeRequestActionPost(post.post_id, content, commentsListView);
+                final EditText commentEditText = (EditText) dialog.findViewById(R.id.editTextComment);
+
+                final Button doneButton = (Button) dialog.findViewById(R.id.buttonDone);
+                doneButton.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        // Perform action on click
+                        String content = commentEditText.getText().toString().trim();
+                        if (content.length() > 0) {
+                            if (content.length() <= 140) {
+                                makeRequestActionPost(post.post_id, content, commentsListView);
+                            } else {
+                                Toast.makeText(MapsActivity.this, "Comments can't be longer than 140 characters!",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        dialog.dismiss();
                     }
                 });
-
-                alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        // what ever you want to do with No option.
-                    }
-                });
-
-                alert.show();
             }
         });
 
@@ -699,15 +700,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         postButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (isCurrentLocationAvailable()) {
-                    String newPostTitle = "I found a " + pokemonSpinner.getSelectedItem().toString() + "!";
-                    Log.i(TAG, "Selected Item: " + pokemonSpinner.getSelectedItem().toString());
-                    String newPostCaption = captionEditText.getText().toString();
-                    double newPostLatitude = locationListener.getCurrLocation().getLatitude();
-                    double newPostLongitude = locationListener.getCurrLocation().getLongitude();
-                    boolean newPostOnlyVisibleTeam = onlyVisibleTeamCheckBox.isChecked();
-                    makeRequestNewPost(newPostTitle, newPostCaption, newPostLatitude, newPostLongitude, newPostOnlyVisibleTeam);
-                    dialog.dismiss();
+                String content = captionEditText.getText().toString().trim();
+                if (content.length() > 0) {
+                    if (content.length() <= 140) {
+                        if (isCurrentLocationAvailable()) {
+                            String newPostTitle = "I found a " + pokemonSpinner.getSelectedItem().toString() + "!";
+                            Log.i(TAG, "Selected Item: " + pokemonSpinner.getSelectedItem().toString());
+                            String newPostCaption = captionEditText.getText().toString();
+                            double newPostLatitude = locationListener.getCurrLocation().getLatitude();
+                            double newPostLongitude = locationListener.getCurrLocation().getLongitude();
+                            boolean newPostOnlyVisibleTeam = onlyVisibleTeamCheckBox.isChecked();
+                            makeRequestNewPost(newPostTitle, newPostCaption, newPostLatitude, newPostLongitude, newPostOnlyVisibleTeam);
+                            dialog.dismiss();
+                        }
+                    } else {
+                        Toast.makeText(MapsActivity.this, "Captions can't be longer than 140 characters!",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(MapsActivity.this, "Need a caption!",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         });
