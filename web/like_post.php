@@ -27,7 +27,7 @@ function likePost() {
         $post_user_id = $_POST["post_user_id"];
         $change = $_POST["change"];
 
-        if ($change !== "-1" && $change !== "1") {
+        if ($change !== "-1" && $change !== "1" && $change !== "-2" && $change !== "2") {
             return;
         }
 
