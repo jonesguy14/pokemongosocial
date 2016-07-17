@@ -6,6 +6,7 @@ The Android App for socializing with fellow Pokemon Go players.
 ## Dependencies:
 
 Uses [Volley](https://developer.android.com/training/volley/index.html) for network requests.
+Uses [SearchableSpinner](https://github.com/miteshpithadiya/SearchableSpinner)
 Run 'gradlew' to get the stuff
 
 ## Database Schema (since only I can see that right now):

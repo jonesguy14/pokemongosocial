@@ -225,7 +225,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
                             }
 
                         } catch (Exception e) {
-                            Log.e(TAG, e.toString());
+                            Log.e(TAG, "", e);
                             Toast.makeText(context, "Something went wrong.",
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -233,7 +233,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, error.toString());
+                Log.e(TAG, "", error);
                 Toast.makeText(context, "Something went wrong.",
                         Toast.LENGTH_SHORT).show();
             }
@@ -257,22 +257,12 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        // Should we even tell user that it failed?
-                        /*try {
-                            JSONObject responseJSON = new JSONObject(response);
-                            Toast.makeText(context, responseJSON.getString("message"),
-                                    Toast.LENGTH_SHORT).show();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Toast.makeText(context, "Something went wrong on response.",
-                                    Toast.LENGTH_SHORT).show();
-                        }*/
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(TAG, error.toString());
-                Toast.makeText(context, "Something went wrong with Volley.",
+                Log.e(TAG, "", error);
+                Toast.makeText(context, "Something went wrong.",
                         Toast.LENGTH_SHORT).show();
             }
         }) {

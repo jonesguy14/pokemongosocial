@@ -165,7 +165,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     /**
      * Move to current location, if available
      */
-    public void moveCamera() {
+    private void moveCamera() {
         if (isCurrentLocationAvailable()) {
             Location currentLocation = locationListener.getCurrLocation();
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation
@@ -340,7 +340,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     /**
      * Show list of recent posts by the user.
      */
-    public void showRecentPostsDialog(final PokeGoPost[] posts) {
+    private void showRecentPostsDialog(final PokeGoPost[] posts) {
         AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
@@ -406,7 +406,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 HashMap<String, String> map = new HashMap<>();
                 map.put("latitude", "" + locationListener.getCurrLocation().getLatitude());
                 map.put("longitude", "" + locationListener.getCurrLocation().getLongitude());
-                map.put("range", "" + Math.pow(currRange,2));
+                map.put("range", "" + Math.pow(currRange, 2));
                 map.put("team", user.team.toString());
                 return map;
             }
@@ -429,7 +429,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    public void showViewPostDialog(final PokeGoPost post) {
+    private void showViewPostDialog(final PokeGoPost post) {
         final int initialLikes = post.likes;
         final int initialThumbs = post.thumbs;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -535,7 +535,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         String content = commentEditText.getText().toString().trim();
                         if (content.length() > 0) {
                             if (content.length() <= 140) {
-                                makeRequestActionPost(post.post_id, content, commentsListView);
+                                makeRequestCommentPost(post.post_id, content, commentsListView);
                             } else {
                                 Toast.makeText(MapsActivity.this, "Comments can't be longer than 140 characters!",
                                         Toast.LENGTH_SHORT).show();
@@ -554,7 +554,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     /**
      * Show menu of options when users click the fab.
      */
-    public void showFabMenuDialog() {
+    private void showFabMenuDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
@@ -605,28 +605,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * Prompt user to enter new range for the map.
      * On complete, get nearby posts using the new range.
      */
-    public void showMapRangeDialog() {
+    private void showMapRangeDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
         builder.setView(getLayoutInflater().inflate(R.layout.seekbar_dialog, null));
         final AlertDialog dialog = builder.create();
         dialog.show();
 
         final SeekBar rangeSeekBar = (SeekBar) dialog.findViewById(R.id.seekBar);
-        rangeSeekBar.setMax((int)(MAX_RANGE * 100));
-        rangeSeekBar.setProgress((int)(currRange * 100));
+        rangeSeekBar.setMax((int) (MAX_RANGE * 100));
+        rangeSeekBar.setProgress((int) (currRange * 100));
 
         rangeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 Log.i(TAG, "currRange = " + currRange);
             }
+
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 Log.i(TAG, "currRange = " + currRange);
             }
+
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                currRange = (double)rangeSeekBar.getProgress()/100;
+                currRange = (double) rangeSeekBar.getProgress() / 100;
             }
         });
 
@@ -644,12 +646,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-    public void clearMap() {
+    private void clearMap() {
         postHashMap.clear();
         mMap.clear();
     }
 
-    public void showNewPostDialog() {
+    private void showNewPostDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(getLayoutInflater().inflate(R.layout.new_post_dialog, null));
         final AlertDialog dialog = builder.create();
@@ -746,14 +748,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             moveCamera();
                         } catch (Exception e) {
                             Log.e(TAG, "Error making new post", e);
-                            Toast.makeText(MapsActivity.this, "Something went wrong.",
+                            Toast.makeText(MapsActivity.this, "Could not create post.",
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
+                Log.e(TAG, "", error);
                 Toast.makeText(MapsActivity.this, "Something went wrong.",
                         Toast.LENGTH_SHORT).show();
             }
@@ -815,16 +817,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         requestQueue.add(request);
     }
 
-    private void makeRequestActionPost(final int post_id, final String content, final ListView commentsList) {
+    private void makeRequestCommentPost(final int post_id, final String content, final ListView commentsList) {
         RequestQueue requestQueue = VolleySingleton.getInstance(this).getRequestQueue();
         StringRequest request = new StringRequest(Request.Method.POST, "https://wandr-app.io/pokemon/action_post.php",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        // Get the JSON Response
                         try {
-                            JSONObject responseJSON = new JSONObject(response);
-
                             // Need to refresh comment list
                             CommentsListArrayAdapter commentsAdapter = (CommentsListArrayAdapter) commentsList.getAdapter();
                             commentsAdapter.makeRequestGetComments(content);
@@ -838,7 +837,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
+                Log.e(TAG, "Volley error", error);
                 Toast.makeText(MapsActivity.this, "Something went wrong.",
                         Toast.LENGTH_SHORT).show();
             }
@@ -862,24 +861,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        // Should we even tell user that it failed?
-                        /*try {
-                            JSONObject responseJSON = new JSONObject(response);
-                            Toast.makeText(MapsActivity.this, responseJSON.getString("message"),
-                                    Toast.LENGTH_SHORT).show();
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Toast.makeText(MapsActivity.this, "Something went wrong on response.",
-                                    Toast.LENGTH_SHORT).show();
-                        }*/
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-                Toast.makeText(MapsActivity.this, "Something went wrong.",
-                        Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Volley error", error);
             }
         }) {
             @Override
