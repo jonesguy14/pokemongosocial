@@ -28,6 +28,11 @@ function actionPost() {
         $user_id = $_POST["username"];
         $content = $_POST["content"];
 
+        $length = mb_strlen($content, 'utf8');
+        if ($length === FALSE || $length > 140) {
+            return;
+        }
+
         $stmt = $pdo->prepare("INSERT INTO actions(user_id, post_id, content, time) VALUES (?, ?, ?, CURRENT_TIMESTAMP)");
 
         // execute returns true on success

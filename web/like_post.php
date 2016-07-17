@@ -27,6 +27,10 @@ function likePost() {
         $post_user_id = $_POST["post_user_id"];
         $change = $_POST["change"];
 
+        if ($change !== "-1" && $change !== "1") {
+            return;
+        }
+
         $stmt = $pdo->prepare("UPDATE posts SET likes=likes+(?) WHERE post_id=?");
 
         // execute returns true on success
