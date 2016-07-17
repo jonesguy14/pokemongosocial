@@ -1,6 +1,7 @@
 package io.wandr_app.pokemongosocial.util;
 
-import android.content.res.Resources;
+import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
@@ -17,17 +18,17 @@ public final class CommonUtils {
     private CommonUtils() {
     }
 
-    public static void setTeamTextViewColor(TextView teamTextView, Resources resources, Team team) {
+    public static void setTeamTextViewColor(TextView teamTextView, Context context, Team team) {
         switch (team) {
             case INSTINCT:
-                teamTextView.setTextColor(resources.getColor(R
+                teamTextView.setTextColor(ContextCompat.getColor(context, R
                         .color.Instinct));
                 break;
             case MYSTIC:
-                teamTextView.setTextColor(resources.getColor(R.color.Mystic));
+                teamTextView.setTextColor(ContextCompat.getColor(context, R.color.Mystic));
                 break;
             case VALOR:
-                teamTextView.setTextColor(resources.getColor(R.color.Valor));
+                teamTextView.setTextColor(ContextCompat.getColor(context, R.color.Valor));
                 break;
         }
     }

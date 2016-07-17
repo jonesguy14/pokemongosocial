@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -73,8 +74,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ImageLoader mImageLoader;
     private NetworkImageView mNetworkImageViewProfilePic;
 
-    private FloatingActionButton fab;
-
     // The user using the map
     private User user;
 
@@ -123,7 +122,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mImageLoader = VolleySingleton.getInstance(this).getImageLoader();
 
         // Set up the fab menu
-        fab = (FloatingActionButton) findViewById(R.id.fabMaps);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fabMaps);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -150,7 +149,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    protected void onDestroy() {
+        super.onDestroy();
+        if (worker != null) {
+            worker.close();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_ACCESS_FINE_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -278,7 +287,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     marker.setAnchor(0.5f, 0.5f);
                                     marker.setInfoWindowAnchor(0.5f, 0.0f);
                                 }
-                            }, 0, 0, null,
+                            }, 0, 0, ImageView.ScaleType.CENTER_INSIDE, null,
                             new Response.ErrorListener() {
                                 public void onErrorResponse(VolleyError error) {
                                     // Do nothing, default marker
@@ -463,7 +472,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
         final AlertDialog dialog = builder.create();
         dialog.show();
-        final ViewPostDialog viewPostDialog = new ViewPostDialog(dialog, post, getResources());
+        final ViewPostDialog viewPostDialog = new ViewPostDialog(dialog, post, this);
 
         // Get the right image for the post
         ImageRequest request = new ImageRequest(IMAGE_URL_BASE + post.getImageURL(),
@@ -473,7 +482,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Bitmap resized = PokeGoPost.getResizedBitmap(bitmap, bitmap.getWidth() * 5, bitmap.getHeight() * 5);
                         viewPostDialog.postImageView.setImageBitmap(resized);
                     }
-                }, 0, 0, null,
+                }, 0, 0, ImageView.ScaleType.CENTER_INSIDE, null,
                 new Response.ErrorListener() {
                     public void onErrorResponse(VolleyError error) {
                         // Do nothing, default marker
@@ -679,7 +688,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 Bitmap resized = PokeGoPost.getResizedBitmap(bitmap, bitmap.getWidth() * 3, bitmap.getHeight() * 3);
                                 pokemonImageView.setImageBitmap(resized);
                             }
-                        }, 0, 0, null,
+                        }, 0, 0, ImageView.ScaleType.CENTER_INSIDE, null,
                         new Response.ErrorListener() {
                             public void onErrorResponse(VolleyError error) {
                                 // Do nothing
@@ -698,7 +707,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         final Button postButton = (Button) dialog.findViewById(R.id.buttonPost);
 
         final CheckBox onlyVisibleTeamCheckBox = (CheckBox) dialog.findViewById(R.id.checkBoxOnlyVisibleTeam);
-        onlyVisibleTeamCheckBox.setText("Only visible to " + user.team + " team");
+        onlyVisibleTeamCheckBox.setText(String.format(getString(R.string.onlyVisibleToTeam), user.team));
 
         postButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {

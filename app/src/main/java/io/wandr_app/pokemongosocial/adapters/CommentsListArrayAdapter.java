@@ -2,6 +2,7 @@ package io.wandr_app.pokemongosocial.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -97,7 +98,7 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
             usernameTextView.setText(values[position].username);
             teamTextView.setText(values[position].team);
 
-            CommonUtils.setTeamTextViewColor(teamTextView, context.getResources(), Team.fromString
+            CommonUtils.setTeamTextViewColor(teamTextView, context, Team.fromString
                     (values[position].team));
 
             timeTextView.setText(CommonUtils.getTimeDisplayString(values[position].time));
@@ -105,11 +106,11 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
 
             // Set the button to correct image if the comment was already voted on
             if (values[position].thumbs == 1) {
-                thumbsUpDownButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_thumb_up_black_24dp));
-                thumbsUpDownButton.setColorFilter(context.getResources().getColor(R.color.thumbsUp));
+                thumbsUpDownButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_thumb_up_black_24dp));
+                thumbsUpDownButton.setColorFilter(ContextCompat.getColor(context, R.color.thumbsUp));
             } else if (values[position].thumbs == -1) {
-                thumbsUpDownButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_thumb_down_black_24dp));
-                thumbsUpDownButton.setColorFilter(context.getResources().getColor(R.color.thumbsDown));
+                thumbsUpDownButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_thumb_down_black_24dp));
+                thumbsUpDownButton.setColorFilter(ContextCompat.getColor(context, R.color.thumbsDown));
             }
 
             // Set up the thumbs up/down pop up menu
@@ -159,22 +160,26 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
 
     /**
      * Apply a thumb/unthumb to a comment
-     * @param comment comment affected
-     * @param thumbValue new value, -1, 0, or 1
+     *
+     * @param comment            comment affected
+     * @param thumbValue         new value, -1, 0, or 1
      * @param thumbsUpDownButton button so that image is changed
-     * @param thumbsTextView textview that displays # of likes
+     * @param thumbsTextView     textview that displays # of likes
      */
     public void thumbsComment(PokeGoComment comment, int thumbValue, ImageButton thumbsUpDownButton, TextView thumbsTextView) {
         makeRequestLikeComment(comment, thumbValue - comment.thumbs);
 
         if (thumbValue == -1) {
-            thumbsUpDownButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_thumb_down_black_24dp));
-            thumbsUpDownButton.setColorFilter(context.getResources().getColor(R.color.thumbsDown));
+            thumbsUpDownButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable
+                    .ic_thumb_down_black_24dp));
+            thumbsUpDownButton.setColorFilter(ContextCompat.getColor(context, R.color.thumbsDown));
         } else if (thumbValue == 1) {
-            thumbsUpDownButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_thumb_up_black_24dp));
-            thumbsUpDownButton.setColorFilter(context.getResources().getColor(R.color.thumbsUp));
+            thumbsUpDownButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable
+                    .ic_thumb_up_black_24dp));
+            thumbsUpDownButton.setColorFilter(ContextCompat.getColor(context, R.color.thumbsUp));
         } else {
-            thumbsUpDownButton.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_thumbs_up_down_black_24dp));
+            thumbsUpDownButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable
+                    .ic_thumbs_up_down_black_24dp));
             thumbsUpDownButton.setColorFilter(Color.parseColor("#888888"));
         }
 
@@ -183,12 +188,13 @@ public class CommentsListArrayAdapter extends ArrayAdapter<PokeGoComment> {
         thumbsTextView.setText(CommonUtils.getNumLikesString(comment.likes));
 
         String[] thumbs = {"DOWN", "NONE", "UP"};
-        worker.recordCommentThumbs(comment.action_id, thumbs[thumbValue+1], commentThumbsMap);
+        worker.recordCommentThumbs(comment.action_id, thumbs[thumbValue + 1], commentThumbsMap);
     }
 
     /**
      * Gets a list of comments for the current post as a JSON.
      * Updates the listview to show all of them.
+     *
      * @param content comment that was just made (if applicable)
      */
     public void makeRequestGetComments(final String content) {

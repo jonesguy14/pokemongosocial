@@ -31,8 +31,6 @@ import java.util.regex.Pattern;
 
 public class LoginActivity extends AppCompatActivity {
     private final static String TAG = "Login";
-    private Button newUserButton;
-    private Button loginButton;
     private EditText usernameEditText;
     private EditText passwordEditText;
 
@@ -42,7 +40,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final String USERNAME_PATTERN = "^[a-zA-Z0-9_-]{3,15}$";
     private Pattern pattern;
-    private Matcher matcher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,24 +51,24 @@ public class LoginActivity extends AppCompatActivity {
         usernameEditText = (EditText) findViewById(R.id.editTextUsername);
         passwordEditText = (EditText) findViewById(R.id.editTextPassword);
 
-        newUserButton = (Button) findViewById(R.id.buttonNewUser);
-        newUserButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                showNewUserDialog();
-            }
-        });
-
-        loginButton = (Button) findViewById(R.id.buttonLogin);
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                String username = usernameEditText.getText().toString().trim();
-                String password = passwordEditText.getText().toString().trim();
-                makeRequestLogin(username, password);
-            }
-        });
-
+        Button newUserButton = (Button) findViewById(R.id.buttonNewUser);
+        if (newUserButton != null) {
+            newUserButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    showNewUserDialog();
+                }
+            });
+        }
+        Button loginButton = (Button) findViewById(R.id.buttonLogin);
+        if (loginButton != null) {
+            loginButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    String username = usernameEditText.getText().toString().trim();
+                    String password = passwordEditText.getText().toString().trim();
+                    makeRequestLogin(username, password);
+                }
+            });
+        }
         pattern = Pattern.compile(USERNAME_PATTERN);
     }
 
@@ -84,16 +81,6 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        //if (id == R.id.action_settings) {
-        //    return true;
-        //}
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -234,7 +221,7 @@ public class LoginActivity extends AppCompatActivity {
      * @return true if valid, false if not
      */
     boolean isValidName(String name) {
-        matcher = pattern.matcher(name);
+        Matcher matcher = pattern.matcher(name);
         return matcher.matches();
     }
 }

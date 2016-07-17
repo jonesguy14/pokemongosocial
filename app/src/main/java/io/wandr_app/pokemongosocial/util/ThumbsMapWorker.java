@@ -11,17 +11,18 @@ import java.util.Map;
 import io.wandr_app.pokemongosocial.db.DbHelper;
 import io.wandr_app.pokemongosocial.db.ThumbsContract;
 
-/**
- * Created by kylel on 7/16/2016.
- */
 public class ThumbsMapWorker {
-    private static final String TAG = "ThumbsMapWorker";
     private DbHelper dbHelper;
 
     public ThumbsMapWorker(Context context) {
         dbHelper = new DbHelper(context);
     }
 
+    public void close() {
+        if (dbHelper != null) {
+            dbHelper.close();
+        }
+    }
     /**
      * Records if a post has been thumbed up or down, so that repeated voting is stopped.
      *

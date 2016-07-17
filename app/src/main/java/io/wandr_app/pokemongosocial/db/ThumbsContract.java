@@ -2,9 +2,6 @@ package io.wandr_app.pokemongosocial.db;
 
 import android.provider.BaseColumns;
 
-/**
- * Created by kylel on 7/16/2016.
- */
 public final class ThumbsContract {
     public ThumbsContract() {}
     public static abstract class PostThumbsEntry implements BaseColumns {

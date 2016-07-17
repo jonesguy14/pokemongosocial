@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import io.wandr_app.pokemongosocial.util.CommonUtils;
 
 /**
- * Created by kylel on 7/15/2016.
  * Represents the user information relevant to us
  */
 public final class User {
@@ -43,7 +42,7 @@ public final class User {
 
     public void updateFields(JSONObject requestUserInfoResponse) throws JSONException {
         usernameTextView.setText(requestUserInfoResponse.getString("username"));
-        teamTextView.setText(requestUserInfoResponse.getString("team") + " Team");
+        teamTextView.setText(String.format("%s Team", requestUserInfoResponse.getString("team")));
         timeJoinedTextView.setText("Joined " + requestUserInfoResponse.getString("time_joined").split(" ")[0]);
         reputationTextView.setText("Reputation: " + CommonUtils.getNumLikesString(requestUserInfoResponse.getInt
                 ("reputation")));

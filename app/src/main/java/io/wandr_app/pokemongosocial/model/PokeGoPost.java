@@ -27,14 +27,6 @@ public class PokeGoPost {
 
     /**
      * This constructor is used when the current user makes a post, so it just happened.
-     * @param post_id
-     * @param user_id
-     * @param user_team
-     * @param title
-     * @param caption
-     * @param latitude
-     * @param longitude
-     * @param onlyVisibleTeam
      */
     public PokeGoPost(int post_id, String user_id, Team user_team, String title, String caption,
                       double latitude, double longitude, boolean onlyVisibleTeam) {
@@ -53,7 +45,6 @@ public class PokeGoPost {
 
     /**
      * This constructor is used when grabbing posts from online.
-     * @param postJSON
      */
     public PokeGoPost(JSONObject postJSON) {
         try {

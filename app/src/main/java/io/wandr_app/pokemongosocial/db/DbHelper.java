@@ -4,9 +4,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-/**
- * Created by kylel on 7/16/2016.
- */
 public class DbHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 7;
     public static final String DATABASE_NAME = "GoSocial.db";

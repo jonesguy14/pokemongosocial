@@ -1,8 +1,5 @@
 package io.wandr_app.pokemongosocial.model;
 
-/**
- * Created by kylel on 7/16/2016.
- */
 public enum Team {
     MYSTIC("Mystic"), VALOR("Valor"), INSTINCT("Instinct"), UNKNOWN("Unknown");
     private final String name;

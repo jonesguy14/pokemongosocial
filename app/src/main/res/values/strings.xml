@@ -169,4 +169,5 @@
     <string name="changeMapRange">Change Map Range</string>
     <string name="newPost">New Post</string>
     <string name="recentPosts">My Recent Posts</string>
+    <string name="onlyVisibleToTeam">"Only visible to %s team"</string>
 </resources>

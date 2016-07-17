@@ -1,8 +1,9 @@
 package io.wandr_app.pokemongosocial.model;
 
 import android.app.AlertDialog;
-import android.content.res.Resources;
+import android.content.Context;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -32,11 +33,11 @@ public class ViewPostDialog {
     public Button commentButton;
     public static final int layout = R.layout.view_post_dialog;
 
-    public Resources resources;
+    public Context context;
 
     // Build from a visible dialog with the correct layout, and post
-    public ViewPostDialog(AlertDialog dialog, PokeGoPost post, Resources resources) {
-        this.resources = resources;
+    public ViewPostDialog(AlertDialog dialog, PokeGoPost post, Context context) {
+        this.context = context;
 
         usernameTextView = (TextView) dialog.findViewById(R.id.textViewUsername);
         teamTextView = (TextView) dialog.findViewById(R.id.textViewTeam);
@@ -53,14 +54,14 @@ public class ViewPostDialog {
         thumbUpButton = (ImageButton) dialog.findViewById(R.id.buttonThumbUp);
         thumbDownButton = (ImageButton) dialog.findViewById(R.id.buttonThumbDown);
         commentButton = (Button) dialog.findViewById(R.id.buttonComment);
-        populateFromPost(post, resources);
+        populateFromPost(post, context);
     }
 
-    private void populateFromPost(PokeGoPost post, Resources resources) {
+    private void populateFromPost(PokeGoPost post, Context context) {
         usernameTextView.setText(post.user_id);
 
         teamTextView.setText(post.user_team.toString());
-        CommonUtils.setTeamTextViewColor(teamTextView, resources, post.user_team);
+        CommonUtils.setTeamTextViewColor(teamTextView, context, post.user_team);
         postTimeTextView.setText(CommonUtils.getTimeDisplayString(post.time));
         setPublicOrTeamView(post.onlyVisibleTeam);
         postPlaceTextView.setText(post.title);
@@ -99,13 +100,13 @@ public class ViewPostDialog {
     }
 
     public void makeThumbsUp(int likes) {
-        thumbUpButton.setColorFilter(resources.getColor(R.color.thumbsUp));
+        thumbUpButton.setColorFilter(ContextCompat.getColor(context, R.color.thumbsUp));
         thumbDownButton.setColorFilter(Color.WHITE);
         numLikes.setText(CommonUtils.getNumLikesString(likes));
     }
 
     public void makeThumbsDown(int likes) {
-        thumbDownButton.setColorFilter(resources.getColor(R.color.thumbsDown));
+        thumbDownButton.setColorFilter(ContextCompat.getColor(context, R.color.thumbsDown));
         thumbUpButton.setColorFilter(Color.WHITE);
         numLikes.setText(CommonUtils.getNumLikesString(likes));
     }

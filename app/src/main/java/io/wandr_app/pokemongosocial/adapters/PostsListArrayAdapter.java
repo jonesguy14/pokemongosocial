@@ -1,18 +1,12 @@
 package io.wandr_app.pokemongosocial.adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.NetworkImageView;
 
 import io.wandr_app.pokemongosocial.R;
@@ -25,9 +19,6 @@ import io.wandr_app.pokemongosocial.util.CommonUtils;
  * Created by Achi Jones on 7/16/2016.
  */
 public class PostsListArrayAdapter extends ArrayAdapter<PokeGoPost> {
-
-    private static final String TAG = "PostsListArrayAdapter";
-
     private final Context context;
     private PokeGoPost[] values;
 
