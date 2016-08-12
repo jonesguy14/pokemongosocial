@@ -1,9 +1,9 @@
 <?php
 
 $host = 'localhost';
-$dbName = 'wandjpow_pokemon';
-$user = 'wandjpow_admin';
-$pass = 'wandr-Wasd1234!';
+$dbName = '**************';
+$user = '**************';
+$pass = '**************';
 $charset = 'utf8';
 
 $dsn = "mysql:host=$host;port=3306;dbname=$dbName;charset=$charset";
