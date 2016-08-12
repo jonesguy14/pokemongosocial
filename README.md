@@ -1,7 +1,12 @@
 # pokemongosocial
-Pokemon Go: Social!
+
+![Pokemon Go: Social!](http://i.imgur.com/fZq3o1h.png)
 
 The Android App for socializing with fellow Pokemon Go players.
+
+![A typical post](http://i.imgur.com/AERgGfC.png)
+
+## More Screenshots: http://imgur.com/a/6wCl0
 
 ## Dependencies:
 
@@ -9,7 +14,7 @@ Uses [Volley](https://developer.android.com/training/volley/index.html) for netw
 Uses [SearchableSpinner](https://github.com/miteshpithadiya/SearchableSpinner)
 Run 'gradlew' to get the stuff
 
-## Database Schema (since only I can see that right now):
+## Database Schema:
 
 ###Users:
 - username
@@ -31,7 +36,7 @@ Run 'gradlew' to get the stuff
 - user_team
 - only_visible_team (1 or 0 if it is public or only for their team)
 
-###Actions: (really just comments but used to have likes and comments til I changed that)
+###Actions:
 - action_id (int, primary key auto increment)
 - user_id
 - post_id
